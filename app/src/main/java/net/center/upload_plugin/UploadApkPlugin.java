@@ -5,7 +5,7 @@ import com.android.build.gradle.api.ApplicationVariant;
 
 import net.center.upload_plugin.params.SendDingParams;
 import net.center.upload_plugin.params.SendFeishuParams;
-import net.center.upload_plugin.params.SendPgyParams;
+import net.center.upload_plugin.model.UploadPgyParams;
 
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Plugin;
@@ -19,7 +19,7 @@ public class UploadApkPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        SendPgyParams uploadParams = project.getExtensions().create(PluginConstants.UPLOAD_PARAMS_NAME, SendPgyParams.class);
+        UploadPgyParams uploadParams = project.getExtensions().create(PluginConstants.UPLOAD_PARAMS_NAME, UploadPgyParams.class);
         project.getExtensions().create(PluginConstants.DING_PARAMS_NAME, SendDingParams.class);
         project.getExtensions().create(PluginConstants.FEISHU_PARAMS_NAME, SendFeishuParams.class);
         project.afterEvaluate(project1 -> {
@@ -39,7 +39,7 @@ public class UploadApkPlugin implements Plugin<Project> {
     }
 
 
-    private void dependsOnTask(ApplicationVariant applicationVariant, SendPgyParams uploadParams, Project project1) {
+    private void dependsOnTask(ApplicationVariant applicationVariant, UploadPgyParams uploadParams, Project project1) {
         String variantName =
                 applicationVariant.getName().substring(0, 1).toUpperCase() + applicationVariant.getName().substring(1);
         if (PluginUtils.isEmpty(variantName)) {

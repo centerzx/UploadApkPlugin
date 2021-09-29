@@ -5,7 +5,10 @@ apply plugin: 'java-library'
 //kotlin语言
 //apply plugin: 'kotlin'
 
+//使用maven
 //apply plugin: 'maven'
+
+//上传到github
 apply plugin: 'com.github.dcendents.android-maven'
 
 
@@ -26,9 +29,6 @@ dependencies {
 //    mavenCentral()
 //}
 
-//group = 'net.center.upload.plugin'
-//version = '1.0.0'
-//archivesBaseName = 'java-plugin'
 
 //uploadArchives {
 //    repositories.mavenDeployer {

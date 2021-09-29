@@ -1,4 +1,4 @@
-package net.center.upload_plugin.params;
+package net.center.upload_plugin.model;
 
 import org.gradle.api.Project;
 
@@ -8,7 +8,7 @@ import org.gradle.api.Project;
  * 
  * 蒲公英上传参数设置
  */
-public class SendPgyParams {
+public class UploadPgyParams {
 
     //(必填) API Key 点击获取_api_key
     public String apiKey;
@@ -25,27 +25,27 @@ public class SendPgyParams {
     //(选填)所需更新的指定渠道的下载短链接，只可指定一个渠道，字符串型，如：abcd
     public String buildChannelShortcut;
 
-    public SendPgyParams() {
+    public UploadPgyParams() {
 
     }
 
-    public SendPgyParams(String apiKey) {
+    public UploadPgyParams(String apiKey) {
         this(apiKey, "Release");
     }
 
-    public SendPgyParams(String apiKey, String buildTypeName) {
+    public UploadPgyParams(String apiKey, String buildTypeName) {
         this(apiKey, "", buildTypeName, 1, "");
     }
 
-    public SendPgyParams(String apiKey, String appName, String buildTypeName, int buildInstallType, String buildPassword) {
+    public UploadPgyParams(String apiKey, String appName, String buildTypeName, int buildInstallType, String buildPassword) {
         this(apiKey, appName, buildTypeName, buildInstallType, buildPassword, "");
     }
 
-    public SendPgyParams(String apiKey, String appName, String buildTypeName, int buildInstallType, String buildPassword, String buildUpdateDescription) {
+    public UploadPgyParams(String apiKey, String appName, String buildTypeName, int buildInstallType, String buildPassword, String buildUpdateDescription) {
         this(apiKey, appName, buildTypeName, buildInstallType, buildPassword, buildUpdateDescription, 2, "");
     }
 
-    public SendPgyParams(String apiKey, String appName, String buildTypeName, int buildInstallType, String buildPassword, String buildUpdateDescription, int buildInstallDate, String buildChannelShortcut) {
+    public UploadPgyParams(String apiKey, String appName, String buildTypeName, int buildInstallType, String buildPassword, String buildUpdateDescription, int buildInstallDate, String buildChannelShortcut) {
         this.apiKey = apiKey;
         this.appName = appName;
         this.buildTypeName = buildTypeName;
@@ -56,10 +56,10 @@ public class SendPgyParams {
         this.buildChannelShortcut = buildChannelShortcut;
     }
 
-    public static SendPgyParams getConfig(Project project) {
-        SendPgyParams extension = project.getExtensions().findByType(SendPgyParams.class);
+    public static UploadPgyParams getConfig(Project project) {
+        UploadPgyParams extension = project.getExtensions().findByType(UploadPgyParams.class);
         if (extension == null) {
-            extension = new SendPgyParams();
+            extension = new UploadPgyParams();
         }
         return extension;
     }

@@ -10,7 +10,7 @@ import net.center.upload_plugin.model.FeiShuRequestBean;
 import net.center.upload_plugin.model.PgyUploadResult;
 import net.center.upload_plugin.params.SendDingParams;
 import net.center.upload_plugin.params.SendFeishuParams;
-import net.center.upload_plugin.params.SendPgyParams;
+import net.center.upload_plugin.model.UploadPgyParams;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
@@ -74,7 +74,7 @@ public class UploadTask extends DefaultTask {
                 throw new GradleException("apk file is not exist!");
             }
             System.out.println("final upload apk path: " + apk.getAbsolutePath());
-            SendPgyParams params = SendPgyParams.getConfig(mTargetProject);
+            UploadPgyParams params = UploadPgyParams.getConfig(mTargetProject);
             upload(params.apiKey, params.appName, params.buildInstallType
                     , params.buildPassword, params.buildUpdateDescription
                     , params.buildInstallDate, params.buildChannelShortcut, apk);
