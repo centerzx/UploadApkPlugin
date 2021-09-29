@@ -1,0 +1,46 @@
+//支持java语言
+apply plugin: 'java-library'
+//groovy语言
+//apply plugin: 'groovy'
+//kotlin语言
+//apply plugin: 'kotlin'
+
+//apply plugin: 'maven'
+apply plugin: 'com.github.dcendents.android-maven'
+
+
+apply from: "../config.gradle"
+
+dependencies {
+    // gradle sdk
+    implementation gradleApi()
+    // groovy sdk
+    implementation localGroovy()
+    implementation "com.android.tools.build:gradle:$build_gradle_version"
+
+    implementation "com.google.code.gson:gson:${dependenceVersion.GsonVersion}"
+    implementation "com.squareup.okhttp3:okhttp:${dependenceVersion.okhttpVersion}"
+}
+
+//repositories {
+//    mavenCentral()
+//}
+
+//group = 'net.center.upload.plugin'
+//version = '1.0.0'
+//archivesBaseName = 'java-plugin'
+
+//uploadArchives {
+//    repositories.mavenDeployer {
+//        repository(url: uri('../publishPluginRepo'))
+//        pom.groupId = "net.center.upload.plugin"
+//        pom.artifactId = "pgy-plugin"
+//        pom.version = "1.0.0"
+////        pom.packaging = "aar"
+//    }
+//}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}

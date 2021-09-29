@@ -1,0 +1,6 @@
+ext {
+    dependenceVersion = [
+            okhttpVersion          : "3.12.12",
+            GsonVersion            : "2.8.8",
+    ]
+}
