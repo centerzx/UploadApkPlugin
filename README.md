@@ -16,7 +16,7 @@ Gradle插件，依赖进项目工程，编译APK，使用Task命令一键上传a
 `apply plugin: 'center.uploadpgy.plugin'` 
 引入后，配置自己的相关平台参数：
 
-### //(1)上传到蒲公英的相关配置参数
+### (1)上传到蒲公英的相关配置参数
 
 ```
 uploadPgyParams {
@@ -27,7 +27,7 @@ uploadPgyParams {
     }
 ```
 
-### //(2)发送消息到钉钉的相关配置参数
+### (2)发送消息到钉钉的相关配置参数
 
 ```
 buildDingParams {
@@ -38,12 +38,27 @@ buildDingParams {
     }
 ```
 
-### //(3)发送消息到飞书的相关配置参数
+### (3)发送消息到飞书的相关配置参数
 
 ```
 buildFeiShuParams {
         webHookHostUrl = "https://open.feishu.cn/open-apis/bot/v2/hook/************"
         // webHookHostUrl = readProperties("FeiShuWebHookHostUrl")
+        contentTitle = "开发测试包"
+        contentText = "最新开发测试包已经上传至蒲公英, 可以下载使用了"
+        clickTxt = "点击进行下载"
+    }
+```
+### (4)发送消息到企业微信群的相关配置参数
+
+```
+buildWeixinGroupParams {
+        // webHookHostUrl = readProperties("WeixinWebHookUrl")
+        webHookUrl = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=************"
+        //文本（text）、markdown（markdown）、图文（news）
+        msgtype = "text"
+        //如果使用文本可添加参数是否@全体群人员，默认true：isAtAll = true。其他类型不支持
+        //isAtAll = true
         contentTitle = "开发测试包"
         contentText = "最新开发测试包已经上传至蒲公英, 可以下载使用了"
         clickTxt = "点击进行下载"
