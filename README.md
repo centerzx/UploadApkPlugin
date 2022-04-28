@@ -43,14 +43,14 @@ clickTxt = "点击进行下载"
 PgyApiKey")
 
 //将密钥存在本地 防止泄露 local.properties 在Git的时候不会被上传
-
+'
 def readProperties(key) { File file = rootProject.file('local.properties')
 if (file.exists()) { InputStream inputStream = rootProject.file('local.properties')
 .newDataInputStream()
 Properties properties = new Properties()
 properties.load(inputStream)
 if (properties.containsKey(key)) { return properties.getProperty(key)
-} } }
+} } }'
 
 注意：由于这样会导致app的gradle看着很臃肿，因此可以单独新建一个gradle文件进行配置，然后再在app的gradle文件中apply from: "../******.gradle"
 这个新建gradle就行。
