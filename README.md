@@ -13,12 +13,13 @@ Gradle插件，依赖进项目工程，编译APK，使用Task命令一键上传a
 2、在app目录的build.gradle中添加引用插件：apply plugin: 'center.uploadpgy.plugin' 引入后，配置自己的相关平台参数：
 
 ### //(1)上传到蒲公英的相关配置参数
+``
 uploadPgyParams {
-apiKey = "替换为自己蒲公英账户的apiKey"
-// apiKey = readProperties("PgyApiKey")
-appName = "TestGradlePlugin"//暂时无用 buildTypeName = "Release"
-buildInstallType = 2 buildPassword = "zx"
-}
+        apiKey = "替换为自己蒲公英账户的apiKey"
+        // apiKey = readProperties("PgyApiKey")
+        appName = "TestGradlePlugin"//暂时无用 buildTypeName = "Release"
+        buildInstallType = 2 buildPassword = "zx"
+    }``
 
 ### //(2)发送消息到钉钉的相关配置参数
 buildDingParams {
@@ -43,14 +44,14 @@ clickTxt = "点击进行下载"
 PgyApiKey")
 
 //将密钥存在本地 防止泄露 local.properties 在Git的时候不会被上传
-'
+
 def readProperties(key) { File file = rootProject.file('local.properties')
 if (file.exists()) { InputStream inputStream = rootProject.file('local.properties')
 .newDataInputStream()
 Properties properties = new Properties()
 properties.load(inputStream)
 if (properties.containsKey(key)) { return properties.getProperty(key)
-} } }'
+} } }
 
 注意：由于这样会导致app的gradle看着很臃肿，因此可以单独新建一个gradle文件进行配置，然后再在app的gradle文件中apply from: "../******.gradle"
 这个新建gradle就行。
