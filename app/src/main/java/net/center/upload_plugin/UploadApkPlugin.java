@@ -6,6 +6,7 @@ import com.android.build.gradle.api.ApplicationVariant;
 import net.center.upload_plugin.params.SendDingParams;
 import net.center.upload_plugin.params.SendFeishuParams;
 import net.center.upload_plugin.model.UploadPgyParams;
+import net.center.upload_plugin.params.SendWeixinGroupParams;
 
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Plugin;
@@ -20,8 +21,7 @@ public class UploadApkPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         UploadPgyParams uploadParams = project.getExtensions().create(PluginConstants.UPLOAD_PARAMS_NAME, UploadPgyParams.class);
-        project.getExtensions().create(PluginConstants.DING_PARAMS_NAME, SendDingParams.class);
-        project.getExtensions().create(PluginConstants.FEISHU_PARAMS_NAME, SendFeishuParams.class);
+        createParams(project);
         project.afterEvaluate(project1 -> {
             AppExtension appExtension = ((AppExtension) project1.getExtensions().findByName(PluginConstants.ANDROID_EXTENSION_NAME));
             if (appExtension == null) {
@@ -34,8 +34,12 @@ public class UploadApkPlugin implements Plugin<Project> {
                 }
             }
         });
+    }
 
-
+    private void createParams(Project project){
+        project.getExtensions().create(PluginConstants.DING_PARAMS_NAME, SendDingParams.class);
+        project.getExtensions().create(PluginConstants.FEISHU_PARAMS_NAME, SendFeishuParams.class);
+        project.getExtensions().create(PluginConstants.WEIXIN_GROUP_PARAMS_NAME, SendWeixinGroupParams.class);
     }
 
 
