@@ -8,7 +8,7 @@ apply plugin: 'java-library'
 //使用maven
 //apply plugin: 'maven'
 
-//上传到github
+//先上传到github，再https://jitpack.io/
 apply plugin: 'com.github.dcendents.android-maven'
 
 
