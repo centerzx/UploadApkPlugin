@@ -27,7 +27,7 @@ public class UploadApkPlugin implements Plugin<Project> {
             if (appExtension == null) {
                 return;
             }
-            DomainObjectSet<ApplicationVariant> appVariants = ((AppExtension) project1.getExtensions().findByName(PluginConstants.ANDROID_EXTENSION_NAME)).getApplicationVariants();
+            DomainObjectSet<ApplicationVariant> appVariants = appExtension.getApplicationVariants();
             for (ApplicationVariant applicationVariant : appVariants) {
                 if (applicationVariant.getBuildType() != null) {
                     dependsOnTask(applicationVariant, uploadParams, project1);
