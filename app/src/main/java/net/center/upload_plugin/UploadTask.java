@@ -7,9 +7,12 @@ import com.google.gson.Gson;
 
 import net.center.upload_plugin.helper.HttpHelper;
 import net.center.upload_plugin.helper.SendMsgHelper;
+import net.center.upload_plugin.model.BasePgyResult;
+import net.center.upload_plugin.model.PgyCOSTokenResult;
 import net.center.upload_plugin.model.PgyUploadResult;
 import net.center.upload_plugin.model.UploadPgyParams;
 
+import org.apache.tools.ant.taskdefs.Sleep;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
@@ -67,14 +70,34 @@ public class UploadTask extends DefaultTask {
             }
             System.out.println("final upload apk path: " + apk.getAbsolutePath());
             UploadPgyParams params = UploadPgyParams.getConfig(mTargetProject);
-            upload(params.apiKey, params.appName, params.buildInstallType
+//            uploadPgyAndSendMessage(params.apiKey, params.appName, params.buildInstallType
+//                    , params.buildPassword, params.buildUpdateDescription
+//                    , params.buildInstallDate, params.buildChannelShortcut, apk);
+            uploadPgyQuickWay(params.apiKey, params.appName, params.buildInstallType
                     , params.buildPassword, params.buildUpdateDescription
                     , params.buildInstallDate, params.buildChannelShortcut, apk);
         }
     }
 
+    private Request.Builder getRequestBuilder() {
+        return new Request.Builder()
+                .addHeader("Connection", "Keep-Alive")
+                .addHeader("Charset", "UTF-8");
+    }
 
-    private void upload(String apiKey, String appName, int installType, String buildPassword, String buildUpdateDescription, int buildInstallDate, String buildChannelShortcut, File apkFile) {
+    /**
+     * 本接口上传速度很慢，即将废弃，强烈建议您使用 快速上传App 中的方式来替代。
+     * https://www.pgyer.com/doc/view/api#fastUploadApp
+     * @param apiKey
+     * @param appName
+     * @param installType
+     * @param buildPassword
+     * @param buildUpdateDescription
+     * @param buildInstallDate
+     * @param buildChannelShortcut
+     * @param apkFile
+     */
+    private void uploadPgyAndSendMessage(String apiKey, String appName, int installType, String buildPassword, String buildUpdateDescription, int buildInstallDate, String buildChannelShortcut, File apkFile) {
         //builder
         MultipartBody.Builder bodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         bodyBuilder.addFormDataPart("_api_key", apiKey);
@@ -95,9 +118,7 @@ public class UploadTask extends DefaultTask {
         bodyBuilder.addFormDataPart("file", apkFile.getName(), RequestBody
                 .create(MediaType.parse("*/*"), apkFile));
         //request
-        Request request = new Request.Builder()
-                .addHeader("Connection", "Keep-Alive")
-                .addHeader("Charset", "UTF-8")
+        Request request = getRequestBuilder()
                 .url("https://www.pgyer.com/apiv2/app/upload")
                 .post(bodyBuilder.build())
                 .build();
@@ -131,4 +152,169 @@ public class UploadTask extends DefaultTask {
         }
     }
 
+    /**
+     * 快速上传方式 获取上传的 token
+     * @param apiKey
+     * @param appName
+     * @param installType
+     * @param buildPassword
+     * @param buildUpdateDescription
+     * @param buildInstallDate
+     * @param buildChannelShortcut
+     * @param apkFile
+     */
+    private void uploadPgyQuickWay(String apiKey, String appName, int installType, String buildPassword, String buildUpdateDescription, int buildInstallDate, String buildChannelShortcut, File apkFile) {
+        //builder
+        MultipartBody.Builder bodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+        bodyBuilder.addFormDataPart("_api_key", apiKey);
+        bodyBuilder.addFormDataPart("buildType", "android");
+        if (!PluginUtils.isEmpty(buildUpdateDescription)) {
+            bodyBuilder.addFormDataPart("buildUpdateDescription", buildUpdateDescription);
+        }
+        if (installType != 1) {
+            bodyBuilder.addFormDataPart("buildInstallType", installType + "");
+        }
+        if (installType == 2 && !PluginUtils.isEmpty(buildPassword)) {
+            bodyBuilder.addFormDataPart("buildPassword", buildPassword);
+        }
+        bodyBuilder.addFormDataPart("buildInstallDate", buildInstallDate + "");
+        if (!PluginUtils.isEmpty(buildChannelShortcut)) {
+            bodyBuilder.addFormDataPart("buildChannelShortcut", buildChannelShortcut);
+        }
+        //request
+        Request request = getRequestBuilder()
+                .url("https://www.pgyer.com/apiv2/app/getCOSToken")
+                .post(bodyBuilder.build())
+                .build();
+        try {
+            Response response = HttpHelper.getOkHttpClient().newCall(request).execute();
+            if (response.isSuccessful() && response.body() != null) {
+                String result = response.body().string();
+                System.out.println("upload pgy --- getCOSToken result: " + result);
+                if (!PluginUtils.isEmpty(result)) {
+                    PgyCOSTokenResult pgyCOSTokenResult = new Gson().fromJson(result, PgyCOSTokenResult.class);
+                    if (pgyCOSTokenResult.getCode() != 0 || pgyCOSTokenResult.getData() == null) {
+                        System.out.println("upload pgy --- getCOSToken result error msg: " + pgyCOSTokenResult.getMessage());
+                        return;
+                    }
+                    uploadFileToPgy(pgyCOSTokenResult, apkFile, apiKey, pgyCOSTokenResult.getKey());
+                }
+            } else {
+                System.out.println("upload pgy ---- request getCOSToken call failed");
+            }
+            System.out.println("******************* getCOSToken: finish *******************");
+        } catch (Exception e) {
+            System.out.println("upload pgy ---- request getCOSToken call failed " + e);
+        }
+    }
+
+    /**
+     * 上传文件到第上一步获取的 URL
+     * @param tokenResult
+     * @param apkFile
+     * @param apiKey
+     * @param buildKey
+     */
+    private void uploadFileToPgy(PgyCOSTokenResult tokenResult, File apkFile, String apiKey, String buildKey) {
+        if (PluginUtils.isEmpty(tokenResult.getEndpoint())) {
+            System.out.println("upload to pgy url(endpoint) is empty");
+            return;
+        }
+        //builder
+        MultipartBody.Builder bodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+        bodyBuilder.addFormDataPart("key", tokenResult.getKey());
+        bodyBuilder.addFormDataPart("signature", tokenResult.getData().getSignature());
+        bodyBuilder.addFormDataPart("x-cos-security-token", tokenResult.getData().getCosSecurityToken());
+        //add file
+        bodyBuilder.addFormDataPart("file", apkFile.getName(), RequestBody
+                .create(MediaType.parse("*/*"), apkFile));
+        //request
+        Request request = getRequestBuilder()
+                .url(tokenResult.getEndpoint())
+                .post(bodyBuilder.build())
+                .build();
+        try {
+            Response response = HttpHelper.getOkHttpClient().newCall(request).execute();
+            if (response.isSuccessful() && response.body() != null) {
+                String result = response.body().string();
+                System.out.println("endpoint: upload apkFile to pgy result: " + result);
+                if (!PluginUtils.isEmpty(result)) {
+                    BasePgyResult uploadResult = new Gson().fromJson(result, BasePgyResult.class);
+                    if (uploadResult.getCode() != 204) {
+                        System.out.println("endpoint: upload apkFile to pgy result error msg: " + uploadResult.getMessage());
+                        return;
+                    }
+                    checkPgyUploadBuildInfo(apiKey,buildKey);
+                }
+            } else {
+                System.out.println("endpoint: upload apkFile to pgy result failure");
+            }
+            System.out.println("******************* endpoint: finish *******************");
+        } catch (Exception e) {
+            System.out.println("endpoint: upload apkFile to pgy result failure " + e);
+        }
+    }
+
+    /**
+     * 检测应用是否发布完成，并获取发布应用的信息
+     * @param apiKey
+     * @param buildKey
+     * 
+     * 发布成功失败返回数据
+     * code	Integer	错误码，1216 应用发布失败
+     * message	String	信息提示
+     * 
+     * 正在发布返回数据
+     * code	Integer	错误码，1246 应用正在发布中
+     * message	String	信息提示
+     * 如果返回 code = 1246 ，可间隔 3s ~ 5s 重新调用 URL 进行检测，直到返回成功或失败。
+     * 
+     */
+    private void checkPgyUploadBuildInfo(String apiKey, String buildKey) {
+        MultipartBody.Builder bodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+        bodyBuilder.addFormDataPart("_api_key", apiKey);
+        bodyBuilder.addFormDataPart("buildKey", buildKey);
+        //request
+        Request request = getRequestBuilder()
+                .url("https://www.pgyer.com/apiv2/app/buildInfo")
+                .post(bodyBuilder.build())
+                .build();
+        try {
+            Response response = HttpHelper.getOkHttpClient().newCall(request).execute();
+            if (response.isSuccessful() && response.body() != null) {
+                String result = response.body().string();
+                System.out.println("buildInfo: upload pgy buildInfo result: " + result);
+                if (!PluginUtils.isEmpty(result)) {
+                    PgyUploadResult uploadResult = new Gson().fromJson(result, PgyUploadResult.class);
+                    //发布成功失败返回数据
+                    if (uploadResult.getCode() == 1216) {
+                        System.out.println("buildInfo: upload pgy buildInfo result error msg: " + uploadResult.getMessage());
+                        return;
+                    }
+                    //正在发布返回数据
+                    if (uploadResult.getCode() == 1246) {
+                        System.out.println("buildInfo: upload pgy buildInfo code(1246): " + uploadResult.getMessage());
+                        new Sleep().doSleep(3000);
+                        System.out.println("buildInfo: upload pgy buildInfo request again");
+                        checkPgyUploadBuildInfo(apiKey, buildKey);
+                        return;
+                    }
+                    if (uploadResult.getData() != null) {
+                        String url = "https://www.pgyer.com/" + uploadResult.getData().getBuildShortcutUrl();
+                        System.out.println("上传成功，应用链接: " + url);
+//                        SendMsgHelper.sendMsgToDingDing(mTargetProject, uploadResult.getData());
+//                        SendMsgHelper.sendMsgToFeishu(mTargetProject, uploadResult.getData());
+//                        SendMsgHelper.sendMsgToWeiXinGroup(mTargetProject, uploadResult.getData());
+                    } else {
+                        System.out.println("buildInfo: upload pgy buildInfo result error : data is empty");
+                    }
+                }
+            } else {
+                System.out.println("buildInfo: upload pgy buildInfo result failure");
+            }
+            System.out.println("******************* buildInfo: finish *******************");
+        } catch (Exception e) {
+            System.out.println("buildInfo: upload pgy buildInfo result failure " + e);
+        }
+    }
 }
