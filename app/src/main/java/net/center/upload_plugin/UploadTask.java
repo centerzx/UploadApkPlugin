@@ -164,6 +164,9 @@ public class UploadTask extends DefaultTask {
      * @param apkFile
      */
     private void uploadPgyQuickWay(String apiKey, String appName, int installType, String buildPassword, String buildUpdateDescription, int buildInstallDate, String buildChannelShortcut, File apkFile) {
+        System.out.println("upload pgy --- uploadPgyQuickWay start1");
+        new Sleep().doSleep(2000);
+        System.out.println("upload pgy --- uploadPgyQuickWay start2");
         //builder
         MultipartBody.Builder bodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         bodyBuilder.addFormDataPart("_api_key", apiKey);
