@@ -18,7 +18,6 @@ import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -238,7 +237,7 @@ public class UploadTask extends DefaultTask {
                 .build();
         try {
             Response response = HttpHelper.getOkHttpClient().newCall(request).execute();
-            System.out.println("endpoint: upload apkFile to pgy response: " + response.isSuccessful() + "----Body:" + response.body());
+            System.out.println("endpoint: upload apkFile to pgy response: " + response.isSuccessful());
             if (response.isSuccessful() && response.body() != null) {
                 String result = response.body().string();
                 System.out.println("endpoint: upload apkFile to pgy result: " + result);
@@ -274,13 +273,18 @@ public class UploadTask extends DefaultTask {
      *                 如果返回 code = 1246 ，可间隔 3s ~ 5s 重新调用 URL 进行检测，直到返回成功或失败。
      */
     private void checkPgyUploadBuildInfo(String apiKey, String buildKey) {
-        Map<String, String> paramsMap = new HashMap<>(2);
-        paramsMap.put("_api_key", apiKey);
-        paramsMap.put("buildKey", buildKey);
-        String url = "https://www.pgyer.com/apiv2/app/buildInfo";
-        System.out.println("upload pgy --- Start buildInfo");
-        //request
-        Request request = getRequestBuilder("get", url, paramsMap)
+//        Map<String, String> paramsMap = new HashMap<>(2);
+//        paramsMap.put("_api_key", apiKey);
+//        paramsMap.put("buildKey", buildKey);
+//        String url = "https://www.pgyer.com/apiv2/app/buildInfo";
+//        System.out.println("upload pgy --- Start buildInfo");
+//        //request
+//        Request request = getRequestBuilder("get", url, paramsMap)
+//                .build();
+        String url = "https://www.pgyer.com/apiv2/app/buildInfo?_api_key="+apiKey+"&buildKey="+buildKey;
+        Request request = getRequestBuilder()
+                .url(url)
+                .get()
                 .build();
         try {
             Response response = HttpHelper.getOkHttpClient().newCall(request).execute();
@@ -289,27 +293,24 @@ public class UploadTask extends DefaultTask {
                 System.out.println("buildInfo: upload pgy buildInfo result: " + result);
                 if (!PluginUtils.isEmpty(result)) {
                     PgyUploadResult uploadResult = new Gson().fromJson(result, PgyUploadResult.class);
-                    //发布成功失败返回数据
-                    if (uploadResult.getCode() == 1216) {
-                        System.out.println("buildInfo: upload pgy buildInfo result error msg: " + uploadResult.getMessage());
-                        return;
-                    }
-                    //正在发布返回数据
-                    if (uploadResult.getCode() == 1246) {
+                    if (uploadResult.getCode() == 0) {
+                        if (uploadResult.getData() != null) {
+                            String apkDownUrl = "https://www.pgyer.com/" + uploadResult.getData().getBuildShortcutUrl();
+                            System.out.println("上传成功，应用链接: " + apkDownUrl);
+//                        SendMsgHelper.sendMsgToDingDing(mTargetProject, uploadResult.getData());
+//                        SendMsgHelper.sendMsgToFeishu(mTargetProject, uploadResult.getData());
+//                        SendMsgHelper.sendMsgToWeiXinGroup(mTargetProject, uploadResult.getData());
+                        } else {
+                            System.out.println("buildInfo: upload pgy buildInfo result error : data is empty");
+                        }
+                    } else if (uploadResult.getCode() == 1246) {//正在发布返回数据
                         System.out.println("buildInfo: upload pgy buildInfo code(1246): " + uploadResult.getMessage());
                         new Sleep().doSleep(3000);
                         System.out.println("buildInfo: upload pgy buildInfo request again");
                         checkPgyUploadBuildInfo(apiKey, buildKey);
                         return;
-                    }
-                    if (uploadResult.getData() != null) {
-                        String apkDownUrl = "https://www.pgyer.com/" + uploadResult.getData().getBuildShortcutUrl();
-                        System.out.println("上传成功，应用链接: " + apkDownUrl);
-//                        SendMsgHelper.sendMsgToDingDing(mTargetProject, uploadResult.getData());
-//                        SendMsgHelper.sendMsgToFeishu(mTargetProject, uploadResult.getData());
-//                        SendMsgHelper.sendMsgToWeiXinGroup(mTargetProject, uploadResult.getData());
                     } else {
-                        System.out.println("buildInfo: upload pgy buildInfo result error : data is empty");
+                        System.out.println("buildInfo: upload pgy buildInfo result error msg: " + uploadResult.getMessage());
                     }
                 }
             } else {
