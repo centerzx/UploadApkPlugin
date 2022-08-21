@@ -15,14 +15,12 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.internal.impldep.com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import java.io.File;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.FormBody;
@@ -333,9 +331,7 @@ public class UploadTask extends DefaultTask {
     private void pgyUploadBuildInfoTimer(String apiKey, String buildKey) {
         System.out.println("buildInfo: upload pgy buildInfo request again");
         if (executorService == null) {
-            ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
-                    .setNameFormat("demo-pool-%d").build();
-            executorService = new ScheduledThreadPoolExecutor(1, namedThreadFactory);
+            executorService = new ScheduledThreadPoolExecutor(1);
         }
         executorService.scheduleWithFixedDelay(() -> {
             try {
