@@ -7,7 +7,6 @@ import com.google.gson.Gson;
 
 import net.center.upload_plugin.helper.HttpHelper;
 import net.center.upload_plugin.helper.SendMsgHelper;
-import net.center.upload_plugin.model.BasePgyResult;
 import net.center.upload_plugin.model.PgyCOSTokenResult;
 import net.center.upload_plugin.model.PgyUploadResult;
 import net.center.upload_plugin.model.UploadPgyParams;
@@ -19,8 +18,12 @@ import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
+import okhttp3.FormBody;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.Request;
@@ -77,12 +80,6 @@ public class UploadTask extends DefaultTask {
                     , params.buildPassword, params.buildUpdateDescription
                     , params.buildInstallDate, params.buildChannelShortcut, apk);
         }
-    }
-
-    private Request.Builder getRequestBuilder() {
-        return new Request.Builder()
-                .addHeader("Connection", "Keep-Alive")
-                .addHeader("Charset", "UTF-8");
     }
 
     /**
@@ -183,7 +180,7 @@ public class UploadTask extends DefaultTask {
         if (!PluginUtils.isEmpty(buildChannelShortcut)) {
             bodyBuilder.addFormDataPart("buildChannelShortcut", buildChannelShortcut);
         }
-        //request
+        System.out.println("upload pgy --- Start getCOSToken");
         Request request = getRequestBuilder()
                 .url("https://www.pgyer.com/apiv2/app/getCOSToken")
                 .post(bodyBuilder.build())
@@ -234,24 +231,26 @@ public class UploadTask extends DefaultTask {
         //add file
         bodyBuilder.addFormDataPart("file", apkFile.getName(), RequestBody
                 .create(MediaType.parse("*/*"), apkFile));
-        //request
+        System.out.println("upload pgy --- Start endpoint : " + tokenResult.getData().getEndpoint());
         Request request = getRequestBuilder()
                 .url(tokenResult.getData().getEndpoint())
                 .post(bodyBuilder.build())
                 .build();
         try {
             Response response = HttpHelper.getOkHttpClient().newCall(request).execute();
+            System.out.println("endpoint: upload apkFile to pgy response: " + response.isSuccessful() + "----Body:" + response.body());
             if (response.isSuccessful() && response.body() != null) {
                 String result = response.body().string();
                 System.out.println("endpoint: upload apkFile to pgy result: " + result);
-                if (!PluginUtils.isEmpty(result)) {
-                    BasePgyResult uploadResult = new Gson().fromJson(result, BasePgyResult.class);
-                    if (uploadResult.getCode() != 204) {
-                        System.out.println("endpoint: upload apkFile to pgy result error msg: " + uploadResult.getMessage());
-                        return;
-                    }
-                    checkPgyUploadBuildInfo(apiKey, tokenResult.getData().getKey());
-                }
+//                if (!PluginUtils.isEmpty(result)) {
+//                    BasePgyResult uploadResult = new Gson().fromJson(result, BasePgyResult.class);
+//                    if (uploadResult.getCode() != 204) {
+//                        System.out.println("endpoint: upload apkFile to pgy result error msg: " + uploadResult.getMessage());
+//                        return;
+//                    }
+//                    checkPgyUploadBuildInfo(apiKey, tokenResult.getData().getKey());
+//                }
+                checkPgyUploadBuildInfo(apiKey, tokenResult.getData().getKey());
             } else {
                 System.out.println("endpoint: upload apkFile to pgy result failure");
             }
@@ -275,13 +274,13 @@ public class UploadTask extends DefaultTask {
      *                 如果返回 code = 1246 ，可间隔 3s ~ 5s 重新调用 URL 进行检测，直到返回成功或失败。
      */
     private void checkPgyUploadBuildInfo(String apiKey, String buildKey) {
-        MultipartBody.Builder bodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-        bodyBuilder.addFormDataPart("_api_key", apiKey);
-        bodyBuilder.addFormDataPart("buildKey", buildKey);
+        Map<String, String> paramsMap = new HashMap<>(2);
+        paramsMap.put("_api_key", apiKey);
+        paramsMap.put("buildKey", buildKey);
+        String url = "https://www.pgyer.com/apiv2/app/buildInfo";
+        System.out.println("upload pgy --- Start buildInfo");
         //request
-        Request request = getRequestBuilder()
-                .url("https://www.pgyer.com/apiv2/app/buildInfo")
-                .post(bodyBuilder.build())
+        Request request = getRequestBuilder("get", url, paramsMap)
                 .build();
         try {
             Response response = HttpHelper.getOkHttpClient().newCall(request).execute();
@@ -304,8 +303,8 @@ public class UploadTask extends DefaultTask {
                         return;
                     }
                     if (uploadResult.getData() != null) {
-                        String url = "https://www.pgyer.com/" + uploadResult.getData().getBuildShortcutUrl();
-                        System.out.println("上传成功，应用链接: " + url);
+                        String apkDownUrl = "https://www.pgyer.com/" + uploadResult.getData().getBuildShortcutUrl();
+                        System.out.println("上传成功，应用链接: " + apkDownUrl);
 //                        SendMsgHelper.sendMsgToDingDing(mTargetProject, uploadResult.getData());
 //                        SendMsgHelper.sendMsgToFeishu(mTargetProject, uploadResult.getData());
 //                        SendMsgHelper.sendMsgToWeiXinGroup(mTargetProject, uploadResult.getData());
@@ -320,5 +319,31 @@ public class UploadTask extends DefaultTask {
         } catch (Exception e) {
             System.out.println("buildInfo: upload pgy buildInfo result failure " + e);
         }
+    }
+
+
+    private Request.Builder getRequestBuilder() {
+        return new Request.Builder()
+                .addHeader("Connection", "Keep-Alive")
+                .addHeader("Charset", "UTF-8");
+    }
+
+
+    private Request.Builder getRequestBuilder(String method, String url, Map<String, String> params) {
+        HttpUrl httpUrl = HttpUrl.parse(url);
+        if (httpUrl == null) {
+            return new Request.Builder();
+        }
+        HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
+        if (params != null) {
+            for (Map.Entry<String, String> param : params.entrySet()) {
+                httpBuilder.addQueryParameter(param.getKey(), param.getValue());
+            }
+        }
+        return new Request.Builder()
+                .url(httpBuilder.build())
+                .method(method, new FormBody.Builder().build())
+                .addHeader("Connection", "Keep-Alive")
+                .addHeader("Charset", "UTF-8");
     }
 }
