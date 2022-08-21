@@ -11,15 +11,19 @@ import net.center.upload_plugin.model.PgyCOSTokenResult;
 import net.center.upload_plugin.model.PgyUploadResult;
 import net.center.upload_plugin.model.UploadPgyParams;
 
-import org.apache.tools.ant.taskdefs.Sleep;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.internal.impldep.com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import java.io.File;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
@@ -37,6 +41,7 @@ public class UploadTask extends DefaultTask {
 
     private BaseVariant mVariant;
     private Project mTargetProject;
+    private ScheduledExecutorService executorService;
 
     public void init(BaseVariant variant, Project project) {
         this.mVariant = variant;
@@ -299,18 +304,17 @@ public class UploadTask extends DefaultTask {
                         if (uploadResult.getData() != null) {
                             String apkDownUrl = "https://www.pgyer.com/" + uploadResult.getData().getBuildShortcutUrl();
                             System.out.println("上传成功，应用链接: " + apkDownUrl);
-//                        SendMsgHelper.sendMsgToDingDing(mTargetProject, uploadResult.getData());
-//                        SendMsgHelper.sendMsgToFeishu(mTargetProject, uploadResult.getData());
-//                        SendMsgHelper.sendMsgToWeiXinGroup(mTargetProject, uploadResult.getData());
+                            SendMsgHelper.sendMsgToDingDing(mTargetProject, uploadResult.getData());
+                            SendMsgHelper.sendMsgToFeishu(mTargetProject, uploadResult.getData());
+                            SendMsgHelper.sendMsgToWeiXinGroup(mTargetProject, uploadResult.getData());
                         } else {
                             System.out.println("buildInfo: upload pgy buildInfo result error : data is empty");
                         }
                     } else if (uploadResult.getCode() == 1246 || uploadResult.getCode() == 1247) {
                         //正在发布返回数据
                         System.out.println("buildInfo: upload pgy buildInfo code( " + uploadResult.getCode() + "):" + uploadResult.getMessage());
-                        new Sleep().doSleep(3000);
-                        System.out.println("buildInfo: upload pgy buildInfo request again");
-                        checkPgyUploadBuildInfo(apiKey, buildKey);
+//                        checkPgyUploadBuildInfo(apiKey, buildKey);
+                        pgyUploadBuildInfoTimer(apiKey, buildKey);
                     } else {
                         System.out.println("buildInfo: upload pgy buildInfo result error msg: " + uploadResult.getMessage());
                     }
@@ -322,6 +326,38 @@ public class UploadTask extends DefaultTask {
         } catch (Exception e) {
             System.out.println("buildInfo: upload pgy buildInfo result failure " + e);
         }
+    }
+
+//    private Timer mTimer;
+
+    private void pgyUploadBuildInfoTimer(String apiKey, String buildKey) {
+        System.out.println("buildInfo: upload pgy buildInfo request again");
+        if (executorService == null) {
+            ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
+                    .setNameFormat("demo-pool-%d").build();
+            executorService = new ScheduledThreadPoolExecutor(1, namedThreadFactory);
+        }
+        executorService.scheduleWithFixedDelay(() -> {
+            try {
+                checkPgyUploadBuildInfo(apiKey, buildKey);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, 0, 3, TimeUnit.SECONDS);
+//
+//        if (mTimer == null) {
+//            mTimer = new Timer();
+//        }
+//        mTimer.schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                try {
+//                    checkPgyUploadBuildInfo(apiKey, buildKey);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }, 3000);
     }
 
 
