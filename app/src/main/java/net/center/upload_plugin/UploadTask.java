@@ -271,6 +271,8 @@ public class UploadTask extends DefaultTask {
      *                 code	Integer	错误码，1246 应用正在发布中
      *                 message	String	信息提示
      *                 如果返回 code = 1246 ，可间隔 3s ~ 5s 重新调用 URL 进行检测，直到返回成功或失败。
+     *                 <p>
+     *                 buildInfo: upload pgy buildInfo result: {"code":1247,"message":"App is uploded, please wait"}
      */
     private void checkPgyUploadBuildInfo(String apiKey, String buildKey) {
 //        Map<String, String> paramsMap = new HashMap<>(2);
@@ -281,7 +283,7 @@ public class UploadTask extends DefaultTask {
 //        //request
 //        Request request = getRequestBuilder("get", url, paramsMap)
 //                .build();
-        String url = "https://www.pgyer.com/apiv2/app/buildInfo?_api_key="+apiKey+"&buildKey="+buildKey;
+        String url = "https://www.pgyer.com/apiv2/app/buildInfo?_api_key=" + apiKey + "&buildKey=" + buildKey;
         Request request = getRequestBuilder()
                 .url(url)
                 .get()
@@ -303,12 +305,12 @@ public class UploadTask extends DefaultTask {
                         } else {
                             System.out.println("buildInfo: upload pgy buildInfo result error : data is empty");
                         }
-                    } else if (uploadResult.getCode() == 1246) {//正在发布返回数据
-                        System.out.println("buildInfo: upload pgy buildInfo code(1246): " + uploadResult.getMessage());
+                    } else if (uploadResult.getCode() == 1246 || uploadResult.getCode() == 1247) {
+                        //正在发布返回数据
+                        System.out.println("buildInfo: upload pgy buildInfo code( " + uploadResult.getCode() + "):" + uploadResult.getMessage());
                         new Sleep().doSleep(3000);
                         System.out.println("buildInfo: upload pgy buildInfo request again");
                         checkPgyUploadBuildInfo(apiKey, buildKey);
-                        return;
                     } else {
                         System.out.println("buildInfo: upload pgy buildInfo result error msg: " + uploadResult.getMessage());
                     }
