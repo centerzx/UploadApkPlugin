@@ -9,36 +9,10 @@ import com.google.gson.annotations.SerializedName;
  * 
  */
 public class PgyCOSTokenResult extends BasePgyResult {
-    
-    /**
-     * key 上传文件存储标识唯一 key
-     */
-    @SerializedName("key")
-    private String key;
-    /**
-     * 	上传文件的 URL
-     */
-    @SerializedName("endpoint")
-    private String endpoint;
-    
-    @SerializedName("params")
+
+
+    @SerializedName("data")
     private DataDTO data;
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getEndpoint() {
-        return endpoint;
-    }
-
-    public void setEndpoint(String endpoint) {
-        this.endpoint = endpoint;
-    }
 
     public DataDTO getData() {
         return data;
@@ -49,28 +23,19 @@ public class PgyCOSTokenResult extends BasePgyResult {
     }
 
     public static class DataDTO {
-        @SerializedName("signature")
-        private String signature;
-        @SerializedName("x-cos-security-token")
-        private String cosSecurityToken;
+        @SerializedName("params")
+        private ParamsDTO params;
         @SerializedName("key")
         private String key;
+        @SerializedName("endpoint")
+        private String endpoint;
 
-
-        public String getSignature() {
-            return signature;
+        public ParamsDTO getParams() {
+            return params;
         }
 
-        public void setSignature(String signature) {
-            this.signature = signature;
-        }
-
-        public String getCosSecurityToken() {
-            return cosSecurityToken;
-        }
-
-        public void setCosSecurityToken(String cosSecurityToken) {
-            this.cosSecurityToken = cosSecurityToken;
+        public void setParams(ParamsDTO params) {
+            this.params = params;
         }
 
         public String getKey() {
@@ -79,6 +44,47 @@ public class PgyCOSTokenResult extends BasePgyResult {
 
         public void setKey(String key) {
             this.key = key;
+        }
+
+        public String getEndpoint() {
+            return endpoint;
+        }
+
+        public void setEndpoint(String endpoint) {
+            this.endpoint = endpoint;
+        }
+
+        public static class ParamsDTO {
+            @SerializedName("signature")
+            private String signature;
+            @SerializedName("x-cos-security-token")
+            private String xcossecuritytoken;
+            @SerializedName("key")
+            private String key;
+
+            public String getSignature() {
+                return signature;
+            }
+
+            public void setSignature(String signature) {
+                this.signature = signature;
+            }
+
+            public String getXcossecuritytoken() {
+                return xcossecuritytoken;
+            }
+
+            public void setXcossecuritytoken(String xcossecuritytoken) {
+                this.xcossecuritytoken = xcossecuritytoken;
+            }
+
+            public String getKey() {
+                return key;
+            }
+
+            public void setKey(String key) {
+                this.key = key;
+            }
         }
     }
 }

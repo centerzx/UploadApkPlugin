@@ -88,6 +88,7 @@ public class UploadTask extends DefaultTask {
     /**
      * 本接口上传速度很慢，即将废弃，强烈建议您使用 快速上传App 中的方式来替代。
      * https://www.pgyer.com/doc/view/api#fastUploadApp
+     *
      * @param apiKey
      * @param appName
      * @param installType
@@ -154,6 +155,7 @@ public class UploadTask extends DefaultTask {
 
     /**
      * 快速上传方式 获取上传的 token
+     *
      * @param apiKey
      * @param appName
      * @param installType
@@ -164,9 +166,6 @@ public class UploadTask extends DefaultTask {
      * @param apkFile
      */
     private void uploadPgyQuickWay(String apiKey, String appName, int installType, String buildPassword, String buildUpdateDescription, int buildInstallDate, String buildChannelShortcut, File apkFile) {
-        System.out.println("upload pgy --- uploadPgyQuickWay start1");
-        new Sleep().doSleep(2000);
-        System.out.println("upload pgy --- uploadPgyQuickWay start2");
         //builder
         MultipartBody.Builder bodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         bodyBuilder.addFormDataPart("_api_key", apiKey);
@@ -200,7 +199,7 @@ public class UploadTask extends DefaultTask {
                         System.out.println("upload pgy --- getCOSToken result error msg: " + pgyCOSTokenResult.getMessage());
                         return;
                     }
-                    uploadFileToPgy(pgyCOSTokenResult, apkFile, apiKey, pgyCOSTokenResult.getKey());
+                    uploadFileToPgy(pgyCOSTokenResult, apkFile, apiKey);
                 }
             } else {
                 System.out.println("upload pgy ---- request getCOSToken call failed");
@@ -213,27 +212,31 @@ public class UploadTask extends DefaultTask {
 
     /**
      * 上传文件到第上一步获取的 URL
+     *
      * @param tokenResult
      * @param apkFile
      * @param apiKey
-     * @param buildKey
      */
-    private void uploadFileToPgy(PgyCOSTokenResult tokenResult, File apkFile, String apiKey, String buildKey) {
-        if (PluginUtils.isEmpty(tokenResult.getEndpoint())) {
+    private void uploadFileToPgy(PgyCOSTokenResult tokenResult, File apkFile, String apiKey) {
+        if (PluginUtils.isEmpty(tokenResult.getData().getEndpoint())) {
             System.out.println("upload to pgy url(endpoint) is empty");
+            return;
+        }
+        if (tokenResult.getData().getParams() == null) {
+            System.out.println("upload to pgy params is empty");
             return;
         }
         //builder
         MultipartBody.Builder bodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-        bodyBuilder.addFormDataPart("key", tokenResult.getKey());
-        bodyBuilder.addFormDataPart("signature", tokenResult.getData().getSignature());
-        bodyBuilder.addFormDataPart("x-cos-security-token", tokenResult.getData().getCosSecurityToken());
+        bodyBuilder.addFormDataPart("key", tokenResult.getData().getParams().getKey());
+        bodyBuilder.addFormDataPart("signature", tokenResult.getData().getParams().getSignature());
+        bodyBuilder.addFormDataPart("x-cos-security-token", tokenResult.getData().getParams().getXcossecuritytoken());
         //add file
         bodyBuilder.addFormDataPart("file", apkFile.getName(), RequestBody
                 .create(MediaType.parse("*/*"), apkFile));
         //request
         Request request = getRequestBuilder()
-                .url(tokenResult.getEndpoint())
+                .url(tokenResult.getData().getEndpoint())
                 .post(bodyBuilder.build())
                 .build();
         try {
@@ -247,7 +250,7 @@ public class UploadTask extends DefaultTask {
                         System.out.println("endpoint: upload apkFile to pgy result error msg: " + uploadResult.getMessage());
                         return;
                     }
-                    checkPgyUploadBuildInfo(apiKey,buildKey);
+                    checkPgyUploadBuildInfo(apiKey, tokenResult.getData().getKey());
                 }
             } else {
                 System.out.println("endpoint: upload apkFile to pgy result failure");
@@ -260,18 +263,16 @@ public class UploadTask extends DefaultTask {
 
     /**
      * 检测应用是否发布完成，并获取发布应用的信息
+     *
      * @param apiKey
-     * @param buildKey
-     * 
-     * 发布成功失败返回数据
-     * code	Integer	错误码，1216 应用发布失败
-     * message	String	信息提示
-     * 
-     * 正在发布返回数据
-     * code	Integer	错误码，1246 应用正在发布中
-     * message	String	信息提示
-     * 如果返回 code = 1246 ，可间隔 3s ~ 5s 重新调用 URL 进行检测，直到返回成功或失败。
-     * 
+     * @param buildKey 发布成功失败返回数据
+     *                 code	Integer	错误码，1216 应用发布失败
+     *                 message	String	信息提示
+     *                 <p>
+     *                 正在发布返回数据
+     *                 code	Integer	错误码，1246 应用正在发布中
+     *                 message	String	信息提示
+     *                 如果返回 code = 1246 ，可间隔 3s ~ 5s 重新调用 URL 进行检测，直到返回成功或失败。
      */
     private void checkPgyUploadBuildInfo(String apiKey, String buildKey) {
         MultipartBody.Builder bodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
