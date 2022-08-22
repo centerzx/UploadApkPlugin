@@ -326,7 +326,7 @@ public class UploadTask extends DefaultTask {
         }
     }
 
-    private Timer mTimer;
+//    private Timer mTimer;
 
     private void pgyUploadBuildInfoTimer(String apiKey, String buildKey) {
         System.out.println("buildInfo: upload pgy buildInfo request again(pgyUploadBuildInfoTimer)");
@@ -340,23 +340,27 @@ public class UploadTask extends DefaultTask {
 //                e.printStackTrace();
 //            }
 //        }, 0, 3, TimeUnit.SECONDS);
-//
-        if (mTimer == null) {
-            mTimer = new Timer();
+        
+//        if (mTimer == null) {
+//            mTimer = new Timer();
+//        }
+//        mTimer.schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                try {
+//                    System.out.println("buildInfo: upload pgy buildInfo request again");
+//                    checkPgyUploadBuildInfo(apiKey, buildKey);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }, 3000);
+        try {
+            Thread.sleep(2000);
+            checkPgyUploadBuildInfo(apiKey, buildKey);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        mTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    System.out.println("buildInfo: upload pgy buildInfo request again");
-                    checkPgyUploadBuildInfo(apiKey, buildKey);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }, 3000);
-//        new Sleep().doSleep(2000);
-//        checkPgyUploadBuildInfo(apiKey, buildKey);
     }
 
 
