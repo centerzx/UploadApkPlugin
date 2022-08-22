@@ -11,7 +11,6 @@ import net.center.upload_plugin.model.PgyCOSTokenResult;
 import net.center.upload_plugin.model.PgyUploadResult;
 import net.center.upload_plugin.model.UploadPgyParams;
 
-import org.apache.tools.ant.taskdefs.Sleep;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
@@ -20,8 +19,7 @@ import org.gradle.api.tasks.TaskAction;
 import java.io.File;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
@@ -40,7 +38,8 @@ public class UploadTask extends DefaultTask {
     private BaseVariant mVariant;
     private Project mTargetProject;
 //    private ScheduledExecutorService executorService;
-
+//    private Timer mTimer;
+    
     public void init(BaseVariant variant, Project project) {
         this.mVariant = variant;
         this.mTargetProject = project;
@@ -182,7 +181,7 @@ public class UploadTask extends DefaultTask {
         if (!PluginUtils.isEmpty(buildChannelShortcut)) {
             bodyBuilder.addFormDataPart("buildChannelShortcut", buildChannelShortcut);
         }
-        System.out.println("upload pgy --- Start getCOSToken");
+        System.out.println("upload pgy --- 快速上传方式接口：Start getCOSToken");
         Request request = getRequestBuilder()
                 .url("https://www.pgyer.com/apiv2/app/getCOSToken")
                 .post(bodyBuilder.build())
@@ -218,11 +217,11 @@ public class UploadTask extends DefaultTask {
      */
     private void uploadFileToPgy(PgyCOSTokenResult tokenResult, File apkFile, String apiKey) {
         if (PluginUtils.isEmpty(tokenResult.getData().getEndpoint())) {
-            System.out.println("upload to pgy url(endpoint) is empty");
+            System.out.println("upload pgy --- endpoint url is empty");
             return;
         }
         if (tokenResult.getData().getParams() == null) {
-            System.out.println("upload to pgy params is empty");
+            System.out.println("upload pgy --- endpoint params is empty");
             return;
         }
         //builder
@@ -240,10 +239,10 @@ public class UploadTask extends DefaultTask {
                 .build();
         try {
             Response response = HttpHelper.getOkHttpClient().newCall(request).execute();
-            System.out.println("endpoint: upload apkFile to pgy response: " + response.isSuccessful());
+            System.out.println("upload pgy --- endpoint: upload apkFile to pgy response: " + response.isSuccessful());
             if (response.isSuccessful() && response.body() != null) {
                 String result = response.body().string();
-                System.out.println("endpoint: upload apkFile to pgy result: " + result);
+                System.out.println("upload pgy --- endpoint: upload apkFile to pgy result: " + result);
 //                if (!PluginUtils.isEmpty(result)) {
 //                    BasePgyResult uploadResult = new Gson().fromJson(result, BasePgyResult.class);
 //                    if (uploadResult.getCode() != 204) {
@@ -254,11 +253,11 @@ public class UploadTask extends DefaultTask {
 //                }
                 checkPgyUploadBuildInfo(apiKey, tokenResult.getData().getKey());
             } else {
-                System.out.println("endpoint: upload apkFile to pgy result failure");
+                System.out.println("upload pgy --- endpoint: upload apkFile to pgy result failure");
             }
             System.out.println("******************* endpoint: finish *******************");
         } catch (Exception e) {
-            System.out.println("endpoint: upload apkFile to pgy result failure " + e);
+            System.out.println("upload pgy --- endpoint: upload apkFile to pgy result failure " + e);
         }
     }
 
@@ -287,6 +286,7 @@ public class UploadTask extends DefaultTask {
 //        Request request = getRequestBuilder("get", url, paramsMap)
 //                .build();
         String url = "https://www.pgyer.com/apiv2/app/buildInfo?_api_key=" + apiKey + "&buildKey=" + buildKey;
+        System.out.println("upload pgy --- Start buildInfo : " + url);
         Request request = getRequestBuilder()
                 .url(url)
                 .get()
@@ -295,7 +295,7 @@ public class UploadTask extends DefaultTask {
             Response response = HttpHelper.getOkHttpClient().newCall(request).execute();
             if (response.isSuccessful() && response.body() != null) {
                 String result = response.body().string();
-                System.out.println("buildInfo: upload pgy buildInfo result: " + result);
+                System.out.println("upload pgy --- buildInfo: upload pgy buildInfo result: " + result);
                 if (!PluginUtils.isEmpty(result)) {
                     PgyUploadResult uploadResult = new Gson().fromJson(result, PgyUploadResult.class);
                     if (uploadResult.getCode() == 0) {
@@ -306,30 +306,28 @@ public class UploadTask extends DefaultTask {
                             SendMsgHelper.sendMsgToFeishu(mTargetProject, uploadResult.getData());
                             SendMsgHelper.sendMsgToWeiXinGroup(mTargetProject, uploadResult.getData());
                         } else {
-                            System.out.println("buildInfo: upload pgy buildInfo result error : data is empty");
+                            System.out.println("upload pgy --- buildInfo: upload pgy result error : data is empty");
                         }
                     } else if (uploadResult.getCode() == 1246 || uploadResult.getCode() == 1247) {
                         //正在发布返回数据
-                        System.out.println("buildInfo: upload pgy buildInfo code( " + uploadResult.getCode() + "):" + uploadResult.getMessage());
+                        System.out.println("upload pgy --- buildInfo: upload pgy buildInfo code( " + uploadResult.getCode() + "):" + uploadResult.getMessage());
 //                        checkPgyUploadBuildInfo(apiKey, buildKey);
                         pgyUploadBuildInfoTimer(apiKey, buildKey);
                     } else {
-                        System.out.println("buildInfo: upload pgy buildInfo result error msg: " + uploadResult.getMessage());
+                        System.out.println("upload pgy --- buildInfo: upload pgy buildInfo result error msg: " + uploadResult.getMessage());
                     }
                 }
             } else {
-                System.out.println("buildInfo: upload pgy buildInfo result failure");
+                System.out.println("upload pgy --- buildInfo: upload pgy buildInfo result failure");
             }
             System.out.println("******************* buildInfo: finish *******************");
         } catch (Exception e) {
-            System.out.println("buildInfo: upload pgy buildInfo result failure " + e);
+            System.out.println("upload pgy --- buildInfo: upload pgy buildInfo result failure " + e);
         }
     }
 
-//    private Timer mTimer;
-
     private void pgyUploadBuildInfoTimer(String apiKey, String buildKey) {
-        System.out.println("buildInfo: upload pgy buildInfo request again(pgyUploadBuildInfoTimer)");
+        System.out.println("upload pgy --- buildInfo: upload pgy buildInfo request again(pgyUploadBuildInfoTimer)");
 //        if (executorService == null) {
 //            executorService = new ScheduledThreadPoolExecutor(1);
 //        }
@@ -340,7 +338,7 @@ public class UploadTask extends DefaultTask {
 //                e.printStackTrace();
 //            }
 //        }, 0, 3, TimeUnit.SECONDS);
-        
+
 //        if (mTimer == null) {
 //            mTimer = new Timer();
 //        }
@@ -356,7 +354,8 @@ public class UploadTask extends DefaultTask {
 //            }
 //        }, 3000);
         try {
-            Thread.sleep(2000);
+            TimeUnit.SECONDS.sleep(3);
+//            Thread.sleep(3000);
             checkPgyUploadBuildInfo(apiKey, buildKey);
         } catch (InterruptedException e) {
             e.printStackTrace();
