@@ -20,6 +20,8 @@ import org.gradle.api.tasks.TaskAction;
 import java.io.File;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
@@ -324,10 +326,10 @@ public class UploadTask extends DefaultTask {
         }
     }
 
-//    private Timer mTimer;
+    private Timer mTimer;
 
     private void pgyUploadBuildInfoTimer(String apiKey, String buildKey) {
-        System.out.println("buildInfo: upload pgy buildInfo request again");
+        System.out.println("buildInfo: upload pgy buildInfo request again(pgyUploadBuildInfoTimer)");
 //        if (executorService == null) {
 //            executorService = new ScheduledThreadPoolExecutor(1);
 //        }
@@ -339,21 +341,22 @@ public class UploadTask extends DefaultTask {
 //            }
 //        }, 0, 3, TimeUnit.SECONDS);
 //
-//        if (mTimer == null) {
-//            mTimer = new Timer();
-//        }
-//        mTimer.schedule(new TimerTask() {
-//            @Override
-//            public void run() {
-//                try {
-//                    checkPgyUploadBuildInfo(apiKey, buildKey);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }, 3000);
-        new Sleep().doSleep(2000);
-        checkPgyUploadBuildInfo(apiKey, buildKey);
+        if (mTimer == null) {
+            mTimer = new Timer();
+        }
+        mTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    System.out.println("buildInfo: upload pgy buildInfo request again");
+                    checkPgyUploadBuildInfo(apiKey, buildKey);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }, 3000);
+//        new Sleep().doSleep(2000);
+//        checkPgyUploadBuildInfo(apiKey, buildKey);
     }
 
 
