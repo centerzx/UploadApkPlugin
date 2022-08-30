@@ -12,16 +12,16 @@ public class FeiShuRequestBean {
 
 
     @SerializedName("msg_type")
-    private String msgType;
+    private String msg_type;
     @SerializedName("content")
     private ContentDTO content;
 
     public String getMsgType() {
-        return msgType;
+        return msg_type;
     }
 
     public void setMsgType(String msgType) {
-        this.msgType = msgType;
+        this.msg_type = msgType;
     }
 
     public ContentDTO getContent() {
@@ -46,14 +46,14 @@ public class FeiShuRequestBean {
 
         public static class PostDTO {
             @SerializedName("zh_cn")
-            public ZhCnDTO zhCn;
+            public ZhCnDTO zh_cn;
 
             public ZhCnDTO getZhCn() {
-                return zhCn;
+                return zh_cn;
             }
 
             public void setZhCn(ZhCnDTO zhCn) {
-                this.zhCn = zhCn;
+                this.zh_cn = zhCn;
             }
 
             public static class ZhCnDTO {
@@ -86,7 +86,7 @@ public class FeiShuRequestBean {
                     @SerializedName("href")
                     private String href;
                     @SerializedName("user_id")
-                    private String userId;
+                    private String user_id;
 
                     public String getTag() {
                         return tag;
@@ -113,11 +113,11 @@ public class FeiShuRequestBean {
                     }
 
                     public String getUserId() {
-                        return userId;
+                        return user_id;
                     }
 
                     public void setUserId(String userId) {
-                        this.userId = userId;
+                        this.user_id = userId;
                     }
                 }
             }
