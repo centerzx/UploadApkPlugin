@@ -150,9 +150,9 @@ public class WXGroupRequestBean {
         @SerializedName("content")
         private String content;
         @SerializedName("mentioned_list")
-        private List<String> mentionedList;
+        private List<String> mentioned_list;
         @SerializedName("mentioned_mobile_list")
-        private List<String> mentionedMobileList;
+        private List<String> mentioned_mobile_list;
 
 
         public String getContent() {
@@ -164,19 +164,19 @@ public class WXGroupRequestBean {
         }
 
         public List<String> getMentionedList() {
-            return mentionedList;
+            return mentioned_list;
         }
 
         public void setMentionedList(List<String> mentionedList) {
-            this.mentionedList = mentionedList;
+            this.mentioned_list = mentionedList;
         }
 
         public List<String> getMentionedMobileList() {
-            return mentionedMobileList;
+            return mentioned_mobile_list;
         }
 
         public void setMentionedMobileList(List<String> mentionedMobileList) {
-            this.mentionedMobileList = mentionedMobileList;
+            this.mentioned_mobile_list = mentionedMobileList;
         }
     }
 }
