@@ -5,9 +5,10 @@
 Gradle插件，依赖进项目工程，编译APK，使用Task命令一键上传apk到三方平台，如：蒲公英。（目前暂时只支持蒲公英，可以进行扩展）。
 上传成功后，如果你需要提醒其他人员进行版本更新，如：钉钉群、飞书群、企业微信群等（还可扩展其他），配置相关参数，自动发送更新消息到群里。
 
-## 更新：
+## 更新记录：
 2022-08-22：蒲公英上传接口做了调整，原有接口将废弃：https://www.pgyer.com/doc/view/api#fastUploadApp
-插件已根据文档做升级。修复版本v1.0.3
+插件已根据文档做升级。修复版本v1.0.3   
+
 2022-08-31：发送消息到飞书出现msg_type参数错误问题。修复版本v1.0.4
 
 ## 使用步骤
@@ -15,7 +16,7 @@ Gradle插件，依赖进项目工程，编译APK，使用Task命令一键上传a
 1、在项目工程跟目录，工程的build.gradle dependencies中添加：
 `classpath 'com.github.centerzx:UploadApkPlugin:***'`  
 目前版本为：
-`classpath 'com.github.centerzx:UploadApkPlugin:1.0.3'`
+`classpath 'com.github.centerzx:UploadApkPlugin:1.0.4'`
 
 2、在app目录的build.gradle中添加引用插件：
 `apply plugin: 'center.uploadpgy.plugin'` 
@@ -97,7 +98,7 @@ def readProperties(key) {
 在执行task命令时，studio的run窗口会展示执行情况，包括蒲公英上传情况、钉钉飞书等消息发送情况，一目了然。
 
 ## 后期展望：
-1、扩展新增firim上传APK包形式
+1、扩展新增firim上传APK包形式  
 2、扩展新增发送的消息中自动携带Git的提交记录描述
 
 大概情况是这样，如有不足和错误的地方，欢迎大家讨论指正！感谢来个star。
