@@ -220,7 +220,7 @@ public class DingDingRequestBean {
             return isAtAll;
         }
 
-        public void setAtAll(boolean atAll) {
+        public void setIsAtAll(boolean atAll) {
             isAtAll = atAll;
         }
         

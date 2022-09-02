@@ -22,6 +22,12 @@ import okhttp3.Response;
 
 public class SendMsgHelper {
 
+    /**
+     * 发送消息到钉钉
+     *
+     * @param project
+     * @param dataDTO
+     */
     public static void sendMsgToDingDing(Project project, PgyUploadResult.DataDTO dataDTO) {
         SendDingParams dingParams = SendDingParams.getDingParamsConfig(project);
         if (PluginUtils.isEmpty(dingParams.accessToken)) {
@@ -29,19 +35,19 @@ public class SendMsgHelper {
             return;
         }
         DingDingRequestBean requestBean = new DingDingRequestBean();
+        String title = dingParams.contentTitle;
+        if (PluginUtils.isEmpty(title)) {
+            title = "测试包版本：";
+        }
+        StringBuilder titleStr = new StringBuilder(title).append("V").append(dataDTO.getBuildVersion());
+        String text = dingParams.contentText;
+        if (PluginUtils.isEmpty(text)) {
+            text = "最新开发测试包已上传 ";
+        }
         if ("markdown".equals(dingParams.msgtype)) {
             requestBean.setMsgtype("markdown");
             DingDingRequestBean.MarkDownDTO markDownBean = new DingDingRequestBean.MarkDownDTO();
-            String title = dingParams.contentTitle;
-            if (PluginUtils.isEmpty(title)) {
-                title = "测试包版本：";
-            }
-            StringBuilder titleStr = new StringBuilder(title).append("V").append(dataDTO.getBuildVersion());
             markDownBean.setTitle(titleStr.toString());
-            String text = dingParams.contentText;
-            if (PluginUtils.isEmpty(text)) {
-                text = "最新开发测试包已上传 ";
-            }
             StringBuilder contentStr = new StringBuilder("**").append(text).append("**");
             contentStr.append("*").append(dataDTO.getBuildCreated()).append("*").append("\n");
             String clickTxt = dingParams.clickTxt;
@@ -56,22 +62,13 @@ public class SendMsgHelper {
             }
             markDownBean.setText(contentStr.toString());
             DingDingRequestBean.AtDTO atBean = new DingDingRequestBean.AtDTO();
-            atBean.setAtAll(dingParams.isAtAll);
+            atBean.setIsAtAll(dingParams.isAtAll);
             requestBean.setAt(atBean);
             requestBean.setMarkdown(markDownBean);
         } else if ("actionCard".equals(dingParams.msgtype)) {
             requestBean.setMsgtype("actionCard");
             DingDingRequestBean.ActionCardDTO actionCardBean = new DingDingRequestBean.ActionCardDTO();
-            String title = dingParams.contentTitle;
-            if (PluginUtils.isEmpty(title)) {
-                title = "测试包版本：";
-            }
-            StringBuilder titleStr = new StringBuilder(title).append("V").append(dataDTO.getBuildVersion());
             actionCardBean.setTitle(titleStr.toString());
-            String text = dingParams.contentText;
-            if (PluginUtils.isEmpty(text)) {
-                text = "最新开发测试包已上传 ";
-            }
             StringBuilder contentStr = new StringBuilder("**").append(text).append("**");
             contentStr.append("*").append(dataDTO.getBuildCreated()).append("*").append("\n");
             contentStr.append("![二维码](").append(dataDTO.getBuildQRCodeURL()).append(")\n");
@@ -92,16 +89,13 @@ public class SendMsgHelper {
         } else {
             requestBean.setMsgtype("link");
             DingDingRequestBean.LinkDTO linkBean = new DingDingRequestBean.LinkDTO();
-            String text = dingParams.contentText;
-            if (PluginUtils.isEmpty(text)) {
-                text = "最新开发测试包已上传 ";
-            }
-            linkBean.setText(text + dataDTO.getBuildCreated());
-            String title = dingParams.contentTitle;
-            if (PluginUtils.isEmpty(title)) {
-                title = "测试包版本：";
-            }
-            linkBean.setTitle(title + "V" + dataDTO.getBuildVersion());
+            StringBuilder contentStr = new StringBuilder(text).append(dataDTO.getBuildCreated());
+//            String gitLog = CmdHelper.getGitLogByTimeAndCount(-1, -1);
+//            if (!PluginUtils.isEmpty(gitLog)) {
+//                contentStr.append("\n 更新内容：\n ").append(gitLog);
+//            }
+            linkBean.setText(contentStr.toString());
+            linkBean.setTitle(titleStr.toString());
             linkBean.setPicUrl(dataDTO.getBuildQRCodeURL());
             linkBean.setMessageUrl("https://www.pgyer.com/" + dataDTO.getBuildShortcutUrl());
             requestBean.setLink(linkBean);
@@ -131,6 +125,12 @@ public class SendMsgHelper {
         }
     }
 
+    /**
+     * 发送消息到飞书
+     *
+     * @param project
+     * @param dataDTO
+     */
     public static void sendMsgToFeishu(Project project, PgyUploadResult.DataDTO dataDTO) {
         SendFeishuParams feishuParamsConfig = SendFeishuParams.getFeishuParamsConfig(project);
         String webHookHostUrl = feishuParamsConfig.webHookHostUrl;
@@ -138,36 +138,59 @@ public class SendMsgHelper {
             System.out.println("send to feishu failure：webHookHostUrl is empty");
             return;
         }
-        FeiShuRequestBean feiShuRequestBean = new FeiShuRequestBean();
-        feiShuRequestBean.setMsg_type("post");
-        FeiShuRequestBean.ContentDTO contentDTO = new FeiShuRequestBean.ContentDTO();
-        FeiShuRequestBean.ContentDTO.PostDTO postDTO = new FeiShuRequestBean.ContentDTO.PostDTO();
-
-
-        FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO.ContentBean contentBeanText = new FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO.ContentBean();
-        contentBeanText.setTag("text");
-        String text = feishuParamsConfig.contentText;
-        if (PluginUtils.isEmpty(text)) {
-            text = "最新开发测试包已上传 ";
-        }
-        contentBeanText.setText(text + dataDTO.getBuildCreated());
-
-        FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO.ContentBean contentBeanA = new FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO.ContentBean();
-        contentBeanA.setTag("a");
-        contentBeanA.setText(PluginUtils.isEmpty(feishuParamsConfig.clickTxt) ? "点击进行下载" : feishuParamsConfig.clickTxt);
-        contentBeanA.setHref("https://www.pgyer.com/" + dataDTO.getBuildShortcutUrl());
-        List<FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO.ContentBean> beans = new ArrayList<>();
-        beans.add(contentBeanText);
-        beans.add(contentBeanA);
-        List<List<FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO.ContentBean>> zhCnContentList = new ArrayList<>();
-        zhCnContentList.add(beans);
-
-        FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO zhCnDTO = new FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO();
         String title = feishuParamsConfig.contentTitle;
         if (PluginUtils.isEmpty(title)) {
             title = "测试包版本：";
         }
-        zhCnDTO.setTitle(title + "V" + dataDTO.getBuildVersion());
+        StringBuilder titleStr = new StringBuilder(title).append("V").append(dataDTO.getBuildVersion());
+        String text = feishuParamsConfig.contentText;
+        if (PluginUtils.isEmpty(text)) {
+            text = "最新开发测试包已上传 ";
+        }
+        
+        FeiShuRequestBean feiShuRequestBean = new FeiShuRequestBean();
+        if ("interactive".equals(feishuParamsConfig.msgtype)) {
+            feiShuRequestBean.setMsg_type("interactive");
+
+        } else {
+            feiShuRequestBean.setMsg_type("post");
+
+        }
+
+        FeiShuRequestBean.ContentDTO contentDTO = new FeiShuRequestBean.ContentDTO();
+        FeiShuRequestBean.ContentDTO.PostDTO postDTO = new FeiShuRequestBean.ContentDTO.PostDTO();
+
+        FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO.ContentBean contentBeanText = new FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO.ContentBean();
+        contentBeanText.setTag("text");
+        contentBeanText.setText(text + dataDTO.getBuildCreated());
+        FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO.ContentBean contentBeanA = new FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO.ContentBean();
+        contentBeanA.setTag("a");
+        contentBeanA.setText(PluginUtils.isEmpty(feishuParamsConfig.clickTxt) ? "点击进行下载" : feishuParamsConfig.clickTxt);
+        contentBeanA.setHref("https://www.pgyer.com/" + dataDTO.getBuildShortcutUrl());
+        List<FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO.ContentBean> contentBeans = new ArrayList<>();
+        contentBeans.add(contentBeanText);
+        contentBeans.add(contentBeanA);
+        if (feishuParamsConfig.isAtAll) {
+            FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO.ContentBean contentBeanAt = new FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO.ContentBean();
+            contentBeanAt.setTag("at");
+            contentBeanAt.setUser_id("all");
+            contentBeans.add(contentBeanAt);
+        }
+
+        String gitLog = CmdHelper.getGitLogByTimeAndCount(-1, -1);
+        if (!PluginUtils.isEmpty(gitLog)) {
+            List<FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO.ContentBean> contentGitLogBeans = new ArrayList<>();
+            FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO.ContentBean contentGitLogBeanText = new FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO.ContentBean();
+            contentGitLogBeanText.setTag("text");
+            contentGitLogBeanText.setText("更新内容：\n " + gitLog);
+            contentGitLogBeans.add(contentGitLogBeanText);
+        }
+
+        List<List<FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO.ContentBean>> zhCnContentList = new ArrayList<>();
+        zhCnContentList.add(contentBeans);
+
+        FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO zhCnDTO = new FeiShuRequestBean.ContentDTO.PostDTO.ZhCnDTO();
+        zhCnDTO.setTitle(titleStr.toString());
         zhCnDTO.setContent(zhCnContentList);
         postDTO.setZh_cn(zhCnDTO);
         contentDTO.setPost(postDTO);
