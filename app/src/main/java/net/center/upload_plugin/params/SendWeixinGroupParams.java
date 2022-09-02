@@ -5,7 +5,7 @@ import org.gradle.api.Project;
 /**
  * Created by Android-ZX
  * <p>
- * 发送到企业微信群的消息参数
+ * 发送到企业微信群的消息参数 
  */
 public class SendWeixinGroupParams {
 

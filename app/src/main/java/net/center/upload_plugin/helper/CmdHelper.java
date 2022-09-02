@@ -49,7 +49,7 @@ public class CmdHelper {
             int count = 0;
             while ((line = bufferedReader.readLine()) != null) {
                 ++count;
-                stringBuilder.append(count).append("、").append(line).append("\n");
+                stringBuilder.append(count).append(". ").append(line).append("\n ");
             }
             System.out.println("ExeCmd result：\n" + stringBuilder);
             return stringBuilder.toString();

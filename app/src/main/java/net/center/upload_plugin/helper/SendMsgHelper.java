@@ -1,7 +1,7 @@
 package net.center.upload_plugin.helper;
 
 import net.center.upload_plugin.PluginUtils;
-import net.center.upload_plugin.model.DDContentModel;
+import net.center.upload_plugin.model.DingDingRequestBean;
 import net.center.upload_plugin.model.FeiShuRequestBean;
 import net.center.upload_plugin.model.PgyUploadResult;
 import net.center.upload_plugin.model.WXGroupRequestBean;
@@ -12,7 +12,6 @@ import net.center.upload_plugin.params.SendWeixinGroupParams;
 import org.gradle.api.Project;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import groovy.json.JsonOutput;
@@ -29,23 +28,87 @@ public class SendMsgHelper {
             System.out.println("send to Dingding failure：accessToken is empty");
             return;
         }
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("msgtype", "link");
-        DDContentModel contentModel = new DDContentModel();
-        String text = dingParams.contentText;
-        if (PluginUtils.isEmpty(text)) {
-            text = "最新开发测试包已上传 ";
+        DingDingRequestBean requestBean = new DingDingRequestBean();
+        if ("markdown".equals(dingParams.msgtype)) {
+            requestBean.setMsgtype("markdown");
+            DingDingRequestBean.MarkDownDTO markDownBean = new DingDingRequestBean.MarkDownDTO();
+            String title = dingParams.contentTitle;
+            if (PluginUtils.isEmpty(title)) {
+                title = "测试包版本：";
+            }
+            StringBuilder titleStr = new StringBuilder(title).append("V").append(dataDTO.getBuildVersion());
+            markDownBean.setTitle(titleStr.toString());
+            String text = dingParams.contentText;
+            if (PluginUtils.isEmpty(text)) {
+                text = "最新开发测试包已上传 ";
+            }
+            StringBuilder contentStr = new StringBuilder("**").append(text).append("**");
+            contentStr.append("*").append(dataDTO.getBuildCreated()).append("*").append("\n");
+            String clickTxt = dingParams.clickTxt;
+            if (PluginUtils.isEmpty(clickTxt)) {
+                clickTxt = "点我进行下载";
+            }
+            contentStr.append("[").append(clickTxt).append("](https://www.pgyer.com/").append(dataDTO.getBuildShortcutUrl()).append(")\n");
+            contentStr.append("![二维码](").append(dataDTO.getBuildQRCodeURL()).append(")\n");
+            String gitLog = CmdHelper.getGitLogByTimeAndCount(-1, -1);
+            if (!PluginUtils.isEmpty(gitLog)) {
+                contentStr.append("### 更新内容：\n ").append(gitLog);
+            }
+            markDownBean.setText(contentStr.toString());
+            DingDingRequestBean.AtDTO atBean = new DingDingRequestBean.AtDTO();
+            atBean.setAtAll(dingParams.isAtAll);
+            requestBean.setAt(atBean);
+            requestBean.setMarkdown(markDownBean);
+        } else if ("actionCard".equals(dingParams.msgtype)) {
+            requestBean.setMsgtype("actionCard");
+            DingDingRequestBean.ActionCardDTO actionCardBean = new DingDingRequestBean.ActionCardDTO();
+            String title = dingParams.contentTitle;
+            if (PluginUtils.isEmpty(title)) {
+                title = "测试包版本：";
+            }
+            StringBuilder titleStr = new StringBuilder(title).append("V").append(dataDTO.getBuildVersion());
+            actionCardBean.setTitle(titleStr.toString());
+            String text = dingParams.contentText;
+            if (PluginUtils.isEmpty(text)) {
+                text = "最新开发测试包已上传 ";
+            }
+            StringBuilder contentStr = new StringBuilder("**").append(text).append("**");
+            contentStr.append("*").append(dataDTO.getBuildCreated()).append("*").append("\n");
+            contentStr.append("![二维码](").append(dataDTO.getBuildQRCodeURL()).append(")\n");
+            String gitLog = CmdHelper.getGitLogByTimeAndCount(-1, -1);
+            if (!PluginUtils.isEmpty(gitLog)) {
+                contentStr.append("### 更新内容：\n ").append(gitLog);
+            }
+            actionCardBean.setText(contentStr.toString());
+            //0：按钮竖直排列 1：按钮横向排列
+            actionCardBean.setBtnOrientation("0");
+            String clickTxt = dingParams.clickTxt;
+            if (PluginUtils.isEmpty(clickTxt)) {
+                clickTxt = "点我进行下载";
+            }
+            actionCardBean.setSingleTitle(clickTxt);
+            actionCardBean.setSingleURL("https://www.pgyer.com/" + dataDTO.getBuildShortcutUrl());
+            requestBean.setActionCard(actionCardBean);
+        } else {
+            requestBean.setMsgtype("link");
+            DingDingRequestBean.LinkDTO linkBean = new DingDingRequestBean.LinkDTO();
+            String text = dingParams.contentText;
+            if (PluginUtils.isEmpty(text)) {
+                text = "最新开发测试包已上传 ";
+            }
+            linkBean.setText(text + dataDTO.getBuildCreated());
+            String title = dingParams.contentTitle;
+            if (PluginUtils.isEmpty(title)) {
+                title = "测试包版本：";
+            }
+            linkBean.setTitle(title + "V" + dataDTO.getBuildVersion());
+            linkBean.setPicUrl(dataDTO.getBuildQRCodeURL());
+            linkBean.setMessageUrl("https://www.pgyer.com/" + dataDTO.getBuildShortcutUrl());
+            requestBean.setLink(linkBean);
         }
-        contentModel.setText(text + dataDTO.getBuildCreated());
-        String title = dingParams.contentTitle;
-        if (PluginUtils.isEmpty(title)) {
-            title = "测试包版本：";
-        }
-        contentModel.setTitle(title + "V" + dataDTO.getBuildVersion());
-        contentModel.setPicUrl(dataDTO.getBuildQRCodeURL());
-        contentModel.setMessageUrl("https://www.pgyer.com/" + dataDTO.getBuildShortcutUrl());
-        map.put("link", contentModel);
-        String json = JsonOutput.toJson(map);
+
+
+        String json = JsonOutput.toJson(requestBean);
         System.out.println("send to Dingding request json：" + json);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json;charset=UTF-8"), json);
         Request request = new Request.Builder()
@@ -76,7 +139,7 @@ public class SendMsgHelper {
             return;
         }
         FeiShuRequestBean feiShuRequestBean = new FeiShuRequestBean();
-        feiShuRequestBean.setMsgType("post");
+        feiShuRequestBean.setMsg_type("post");
         FeiShuRequestBean.ContentDTO contentDTO = new FeiShuRequestBean.ContentDTO();
         FeiShuRequestBean.ContentDTO.PostDTO postDTO = new FeiShuRequestBean.ContentDTO.PostDTO();
 
@@ -106,7 +169,7 @@ public class SendMsgHelper {
         }
         zhCnDTO.setTitle(title + "V" + dataDTO.getBuildVersion());
         zhCnDTO.setContent(zhCnContentList);
-        postDTO.setZhCn(zhCnDTO);
+        postDTO.setZh_cn(zhCnDTO);
         contentDTO.setPost(postDTO);
         feiShuRequestBean.setContent(contentDTO);
         /**
@@ -190,10 +253,10 @@ public class SendMsgHelper {
             }
             textDTO.setContent(textDTO.getContent() + "下载链接：https://www.pgyer.com/" + dataDTO.getBuildShortcutUrl());
             if (weixinGroupParamsConfig.isAtAll) {
-                List<String> mentionedList = new ArrayList<String>();
+                List<String> mentionedList = new ArrayList<>();
                 mentionedList.add("@all");
-                textDTO.setMentionedList(mentionedList);
-                textDTO.setMentionedMobileList(mentionedList);
+                textDTO.setMentioned_list(mentionedList);
+                textDTO.setMentioned_mobile_list(mentionedList);
             }
             wxGroupRequestBean.setText(textDTO);
         }

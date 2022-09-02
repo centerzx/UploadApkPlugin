@@ -163,20 +163,21 @@ public class WXGroupRequestBean {
             this.content = content;
         }
 
-        public List<String> getMentionedList() {
+
+        public List<String> getMentioned_list() {
             return mentioned_list;
         }
 
-        public void setMentionedList(List<String> mentionedList) {
-            this.mentioned_list = mentionedList;
+        public void setMentioned_list(List<String> mentioned_list) {
+            this.mentioned_list = mentioned_list;
         }
 
-        public List<String> getMentionedMobileList() {
+        public List<String> getMentioned_mobile_list() {
             return mentioned_mobile_list;
         }
 
-        public void setMentionedMobileList(List<String> mentionedMobileList) {
-            this.mentioned_mobile_list = mentionedMobileList;
+        public void setMentioned_mobile_list(List<String> mentioned_mobile_list) {
+            this.mentioned_mobile_list = mentioned_mobile_list;
         }
     }
 }

@@ -16,12 +16,12 @@ public class FeiShuRequestBean {
     @SerializedName("content")
     private ContentDTO content;
 
-    public String getMsgType() {
+    public String getMsg_type() {
         return msg_type;
     }
 
-    public void setMsgType(String msgType) {
-        this.msg_type = msgType;
+    public void setMsg_type(String msg_type) {
+        this.msg_type = msg_type;
     }
 
     public ContentDTO getContent() {
@@ -48,12 +48,12 @@ public class FeiShuRequestBean {
             @SerializedName("zh_cn")
             public ZhCnDTO zh_cn;
 
-            public ZhCnDTO getZhCn() {
+            public ZhCnDTO getZh_cn() {
                 return zh_cn;
             }
 
-            public void setZhCn(ZhCnDTO zhCn) {
-                this.zh_cn = zhCn;
+            public void setZh_cn(ZhCnDTO zh_cn) {
+                this.zh_cn = zh_cn;
             }
 
             public static class ZhCnDTO {
@@ -112,12 +112,12 @@ public class FeiShuRequestBean {
                         this.href = href;
                     }
 
-                    public String getUserId() {
+                    public String getUser_id() {
                         return user_id;
                     }
 
-                    public void setUserId(String userId) {
-                        this.user_id = userId;
+                    public void setUser_id(String user_id) {
+                        this.user_id = user_id;
                     }
                 }
             }

@@ -61,7 +61,7 @@ buildFeiShuParams {
 buildWeixinGroupParams {
         // webHookHostUrl = readProperties("WeixinWebHookUrl")
         webHookUrl = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=************"
-        //文本（text）、markdown（markdown）、图文（news）
+        //文本（text）、markdown（markdown）、图文（news）,默认 text
         msgtype = "text"
         //如果使用文本可添加参数是否@全体群人员，默认true：isAtAll = true。其他类型不支持
         //isAtAll = true
