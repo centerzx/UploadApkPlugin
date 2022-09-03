@@ -17,12 +17,12 @@ import java.nio.charset.StandardCharsets;
 public class CmdHelper {
     private static final int LOG_MAX_COUNT = 50;
     private static final int LOG_MIN_COUNT = 10;
-    private static final String GIT_LOG_BASIC_CMD = "git log --oneline --pretty=format:\"%an: %s\" --no-merges";
+    private static final String GIT_LOG_BASIC_CMD = "git log --oneline --pretty=format:\"%an—>%s\" --no-merges";
     public static final String gitLogCmd = GIT_LOG_BASIC_CMD + " --since=\"2022-8-30\" --until=\"2022-9-1\"";
     /**
      * %ai 是时间，格式：2022-08-31 23:18:48 +0800
      */
-    public static final String gitLogCmd2 = "git log --oneline --pretty=format:\"%ai , %an: %s\" --no-merges --since=\"2 day ago\"";
+    public static final String gitLogCmd2 = "git log --oneline --pretty=format:\"%ai,%an:%s\" --no-merges --since=2days";
     public static final String gitLogCmd3 = GIT_LOG_BASIC_CMD + " --max-count=10";
 
     public static String checkGetGitParamsWithLog(Project project) {
@@ -36,7 +36,7 @@ public class CmdHelper {
     public static String getGitLogByTimeAndCount(int logDayTime, int logMaxCount) {
         StringBuilder logBuilder = new StringBuilder(GIT_LOG_BASIC_CMD);
         if (logDayTime >= 1) {
-            logBuilder.append(" --since=\"").append(logDayTime).append(" day ago\"");
+            logBuilder.append(" --since=").append(logDayTime).append("days");
             logMaxCount = LOG_MAX_COUNT;
         } else {
             if (logMaxCount <= 0) {
