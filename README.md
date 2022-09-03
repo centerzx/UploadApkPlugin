@@ -143,9 +143,10 @@ def readProperties(key) {
 在执行task命令时，studio的run窗口会展示执行情况，包括蒲公英上传情况、钉钉飞书等消息发送情况，一目了然。
 
 ## 后期展望：
-1、扩展新增firim上传APK包形式（来自：https://github.com/D-zy 建议）  
-2、扩展新增发送的消息中自动携带Git的提交记录描述(已完成。来自 https://github.com/alizhijun 建议)  
-3、扩展新增多渠道打包(来自：https://github.com/alizhijun 建议)  
-4、扩展新增Apk加固(来自：https://github.com/j-gin 建议)  
+1、使用kotlin
+2、扩展新增firim上传APK包形式（来自：https://github.com/D-zy 建议）  
+3、扩展新增发送的消息中自动携带Git的提交记录描述(已完成。来自 https://github.com/alizhijun 建议)  
+4、扩展新增多渠道打包(来自：https://github.com/alizhijun 建议)  
+5、扩展新增Apk加固(来自：https://github.com/j-gin 建议)  
 
 大概情况是这样，如有不足和错误的地方，欢迎大家讨论指正和提建议！感谢来个star。
