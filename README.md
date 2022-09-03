@@ -125,7 +125,7 @@ PgyApiKey")
 def readProperties(key) {
         File file = rootProject.file('local.properties')
         if (file.exists()) {
-                InputStream inputStream = rootProject.file('local.properties').newDataInputStream()
+                InputStream inputStream = file.newDataInputStream()
                 Properties properties = new Properties()
                 properties.load(inputStream)
                 if (properties.containsKey(key)) {
@@ -146,6 +146,6 @@ def readProperties(key) {
 1、扩展新增firim上传APK包形式（来自：https://github.com/D-zy 建议）  
 2、扩展新增发送的消息中自动携带Git的提交记录描述(已完成。来自 https://github.com/alizhijun 建议)  
 3、扩展新增多渠道打包(来自：https://github.com/alizhijun 建议)  
-4、扩展新增Apk加固(来自：https://github.com/j-gin 建议)
+4、扩展新增Apk加固(来自：https://github.com/j-gin 建议)  
 
 大概情况是这样，如有不足和错误的地方，欢迎大家讨论指正和提建议！感谢来个star。
