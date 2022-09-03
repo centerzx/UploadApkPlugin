@@ -25,9 +25,16 @@ Gradle插件，依赖进项目工程，编译APK，使用Task命令一键上传a
 
 `classpath 'com.github.centerzx:UploadApkPlugin:1.0.5'`
 
-2、在app目录的build.gradle中添加引用插件：
-`apply plugin: 'center.uploadpgy.plugin'` 
-引入后，配置自己的相关平台参数：
+repositories中添加：
+
+maven { url "[https://jitpack.io](https://links.jianshu.com/go?to=https%3A%2F%2Fjitpack.io)"} 
+
+2、在app目录（需要打包上传的APK的Module）的build.gradle中添加引用插件：
+
+`apply plugin: 'center.uploadpgy.plugin'`  
+ 
+
+**引入后，配置自己的相关平台参数：**
 
 ### (1)上传到蒲公英的相关配置参数
 
@@ -113,7 +120,7 @@ buildGitLogParams {
 由于key、token等信息都需要保密，万一泄漏，可能被别有用心的人乱使用，故可以将相关关键信息保存在工程的：local.properties文件里面，此文件一般是根据自己本地进行配置的，不会上传到git。然后进行数据读取，如：readProperties("
 PgyApiKey")
 
-//将密钥存在本地 防止泄露 local.properties 在Git的时候不会被上传
+将密钥存在本地 防止泄露 local.properties 在Git的时候不会被上传
 ```
 def readProperties(key) {
         File file = rootProject.file('local.properties')
@@ -137,7 +144,8 @@ def readProperties(key) {
 
 ## 后期展望：
 1、扩展新增firim上传APK包形式（来自：https://github.com/D-zy 建议）  
-2、扩展新增发送的消息中自动携带Git的提交记录描述(已完成。感谢 https://github.com/alizhijun 的建议)
-3、扩展新增Apk加固(来自：https://github.com/j-gin 建议)
+2、扩展新增发送的消息中自动携带Git的提交记录描述(已完成。来自 https://github.com/alizhijun 建议)  
+3、扩展新增多渠道打包(来自：https://github.com/alizhijun 建议)  
+4、扩展新增Apk加固(来自：https://github.com/j-gin 建议)
 
-大概情况是这样，如有不足和错误的地方，欢迎大家讨论指正！感谢来个star。
+大概情况是这样，如有不足和错误的地方，欢迎大家讨论指正和提建议！感谢来个star。
