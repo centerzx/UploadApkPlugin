@@ -5,6 +5,7 @@ import com.android.build.gradle.api.BaseVariant;
 import com.android.build.gradle.api.BaseVariantOutput;
 import com.google.gson.Gson;
 
+import net.center.upload_plugin.helper.CmdHelper;
 import net.center.upload_plugin.helper.HttpHelper;
 import net.center.upload_plugin.helper.SendMsgHelper;
 import net.center.upload_plugin.model.PgyCOSTokenResult;
@@ -39,7 +40,7 @@ public class UploadTask extends DefaultTask {
     private Project mTargetProject;
 //    private ScheduledExecutorService executorService;
 //    private Timer mTimer;
-    
+
     public void init(BaseVariant variant, Project project) {
         this.mVariant = variant;
         this.mTargetProject = project;
@@ -80,6 +81,7 @@ public class UploadTask extends DefaultTask {
             uploadPgyQuickWay(params.apiKey, params.appName, params.buildInstallType
                     , params.buildPassword, params.buildUpdateDescription
                     , params.buildInstallDate, params.buildChannelShortcut, apk);
+//            CmdHelper.getGitLogByTimeAndCount(-1, -1);
         }
     }
 
@@ -135,9 +137,10 @@ public class UploadTask extends DefaultTask {
                     if (uploadResult.getData() != null) {
                         String url = "https://www.pgyer.com/" + uploadResult.getData().getBuildShortcutUrl();
                         System.out.println("上传成功，应用链接: " + url);
-                        SendMsgHelper.sendMsgToDingDing(mTargetProject, uploadResult.getData());
-                        SendMsgHelper.sendMsgToFeishu(mTargetProject, uploadResult.getData());
-                        SendMsgHelper.sendMsgToWeiXinGroup(mTargetProject, uploadResult.getData());
+                        String gitLog = CmdHelper.checkGetGitParamsWithLog(mTargetProject);
+                        SendMsgHelper.sendMsgToDingDing(mTargetProject, uploadResult.getData(), gitLog);
+                        SendMsgHelper.sendMsgToFeishu(mTargetProject, uploadResult.getData(), gitLog);
+                        SendMsgHelper.sendMsgToWeiXinGroup(mTargetProject, uploadResult.getData(), gitLog);
                     } else {
                         System.out.println("upload pgy result error : data is empty");
                     }
@@ -302,9 +305,10 @@ public class UploadTask extends DefaultTask {
                         if (uploadResult.getData() != null) {
                             String apkDownUrl = "https://www.pgyer.com/" + uploadResult.getData().getBuildShortcutUrl();
                             System.out.println("上传成功，应用链接: " + apkDownUrl);
-                            SendMsgHelper.sendMsgToDingDing(mTargetProject, uploadResult.getData());
-                            SendMsgHelper.sendMsgToFeishu(mTargetProject, uploadResult.getData());
-                            SendMsgHelper.sendMsgToWeiXinGroup(mTargetProject, uploadResult.getData());
+                            String gitLog = CmdHelper.checkGetGitParamsWithLog(mTargetProject);
+                            SendMsgHelper.sendMsgToDingDing(mTargetProject, uploadResult.getData(), gitLog);
+                            SendMsgHelper.sendMsgToFeishu(mTargetProject, uploadResult.getData(), gitLog);
+                            SendMsgHelper.sendMsgToWeiXinGroup(mTargetProject, uploadResult.getData(), gitLog);
                         } else {
                             System.out.println("upload pgy --- buildInfo: upload pgy result error : data is empty");
                         }

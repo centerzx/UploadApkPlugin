@@ -5,18 +5,22 @@ import org.gradle.api.Project;
 /**
  * Created by Android-ZX
  * <p>
- * 发送到企业微信群的消息参数 
+ * 发送到企业微信群的消息参数
  */
 public class SendWeixinGroupParams {
 
     public String webHookUrl;
-    public String msgtype = "text";
+    public String msgtype = "markdown";
     /**
      * 如果使用文本可添加参数是否@全体群人员，默认true：isAtAll = true。其他类型不支持
      */
     public boolean isAtAll = true;
     public String contentTitle;
     public String contentText;
+    /**
+     * 是否支持发送git记录
+     */
+    public boolean isSupportGitLog = true;
 
     public SendWeixinGroupParams() {
 

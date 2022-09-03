@@ -1,5 +1,9 @@
 package net.center.upload_plugin.helper;
 
+import net.center.upload_plugin.params.GitLogParams;
+
+import org.gradle.api.Project;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -20,6 +24,14 @@ public class CmdHelper {
      */
     public static final String gitLogCmd2 = "git log --oneline --pretty=format:\"%ai , %an: %s\" --no-merges --since=\"2 day ago\"";
     public static final String gitLogCmd3 = GIT_LOG_BASIC_CMD + " --max-count=10";
+
+    public static String checkGetGitParamsWithLog(Project project) {
+        GitLogParams gitLogParams = GitLogParams.getGitParamsConfig(project);
+        if (gitLogParams == null) {
+            return "";
+        }
+        return getGitLogByTimeAndCount(gitLogParams.gitLogHistoryDayTime, gitLogParams.gitLogMaxCount);
+    }
 
     public static String getGitLogByTimeAndCount(int logDayTime, int logMaxCount) {
         StringBuilder logBuilder = new StringBuilder(GIT_LOG_BASIC_CMD);

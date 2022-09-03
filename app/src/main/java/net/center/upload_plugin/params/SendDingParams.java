@@ -13,10 +13,13 @@ public class SendDingParams {
     public String accessToken;
     public String contentText;
     public String contentTitle;
-
     public String msgtype = "link";
     public boolean isAtAll = false;
     public String clickTxt = "点我进行下载";
+    /**
+     * 是否支持发送git记录
+     */
+    public boolean isSupportGitLog = true;
 
     public SendDingParams() {
 

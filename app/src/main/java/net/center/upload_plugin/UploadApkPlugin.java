@@ -3,9 +3,10 @@ package net.center.upload_plugin;
 import com.android.build.gradle.AppExtension;
 import com.android.build.gradle.api.ApplicationVariant;
 
+import net.center.upload_plugin.model.UploadPgyParams;
+import net.center.upload_plugin.params.GitLogParams;
 import net.center.upload_plugin.params.SendDingParams;
 import net.center.upload_plugin.params.SendFeishuParams;
-import net.center.upload_plugin.model.UploadPgyParams;
 import net.center.upload_plugin.params.SendWeixinGroupParams;
 
 import org.gradle.api.DomainObjectSet;
@@ -37,6 +38,7 @@ public class UploadApkPlugin implements Plugin<Project> {
     }
 
     private void createParams(Project project){
+        project.getExtensions().create(PluginConstants.GIT_LOG_PARAMS_NAME, GitLogParams.class);
         project.getExtensions().create(PluginConstants.DING_PARAMS_NAME, SendDingParams.class);
         project.getExtensions().create(PluginConstants.FEISHU_PARAMS_NAME, SendFeishuParams.class);
         project.getExtensions().create(PluginConstants.WEIXIN_GROUP_PARAMS_NAME, SendWeixinGroupParams.class);

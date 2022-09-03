@@ -16,7 +16,11 @@ public class SendFeishuParams {
     public String msgtype = "post";
     public boolean isAtAll = false;
     public String clickTxt = "点我进行下载";
-
+    /**
+     * 是否支持发送git记录
+     */
+    public boolean isSupportGitLog = true;
+    
     public SendFeishuParams() {
 
     }
