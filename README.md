@@ -137,7 +137,7 @@ def readProperties(key) {
 
 ## 后期展望：
 1、扩展新增firim上传APK包形式（来自：https://github.com/D-zy 建议）  
-2、扩展新增发送的消息中自动携带Git的提交记录描述(已完成，感谢 https://github.com/alizhijun 的建议)
-3、扩展新增Apk加固
+2、扩展新增发送的消息中自动携带Git的提交记录描述(已完成。感谢 https://github.com/alizhijun 的建议)
+3、扩展新增Apk加固(来自：https://github.com/j-gin 建议)
 
 大概情况是这样，如有不足和错误的地方，欢迎大家讨论指正！感谢来个star。
