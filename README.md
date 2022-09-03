@@ -14,16 +14,16 @@ Gradle插件，依赖进项目工程，编译APK，使用Task命令一键上传a
 （1）修复发送消息到飞书出现msg_type参数错误问题；  
 （2）新增Git提交日志参数，用于发送消息时携带Git日志；  
 （3）完善飞书、钉钉、微信发送消息的类型并添加Git日志  
-修复版本v1.0.5
+修复版本v1.0.6
 
 ## 使用步骤
 
 1、在项目工程跟目录，工程的build.gradle dependencies中添加：
 
-`classpath 'com.github.centerzx:UploadApkPlugin:***'`  
+`classpath 'com.github.centerzx:UploadApkPlugin:v***'`  
 目前版本为：
 
-`classpath 'com.github.centerzx:UploadApkPlugin:1.0.5'`
+`classpath 'com.github.centerzx:UploadApkPlugin:v1.0.6'`
 
 repositories中添加：
 
