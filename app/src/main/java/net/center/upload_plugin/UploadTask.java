@@ -10,7 +10,7 @@ import net.center.upload_plugin.helper.HttpHelper;
 import net.center.upload_plugin.helper.SendMsgHelper;
 import net.center.upload_plugin.model.PgyCOSTokenResult;
 import net.center.upload_plugin.model.PgyUploadResult;
-import net.center.upload_plugin.model.UploadPgyParams;
+import net.center.upload_plugin.params.UploadPgyParams;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;

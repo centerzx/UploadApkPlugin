@@ -1,4 +1,4 @@
-package net.center.upload_plugin.model;
+package net.center.upload_plugin.params;
 
 import org.gradle.api.Project;
 

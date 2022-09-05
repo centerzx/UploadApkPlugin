@@ -3,7 +3,7 @@ package net.center.upload_plugin;
 import com.android.build.gradle.AppExtension;
 import com.android.build.gradle.api.ApplicationVariant;
 
-import net.center.upload_plugin.model.UploadPgyParams;
+import net.center.upload_plugin.params.UploadPgyParams;
 import net.center.upload_plugin.params.GitLogParams;
 import net.center.upload_plugin.params.SendDingParams;
 import net.center.upload_plugin.params.SendFeishuParams;
