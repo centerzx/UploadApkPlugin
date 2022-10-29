@@ -154,10 +154,12 @@ def readProperties(key) {
 
 ## 后期展望：
 
+```
 1、使用kotlin
 2、扩展新增firim上传APK包形式（来自：https://github.com/D-zy 建议）
 3、扩展新增发送的消息中自动携带Git的提交记录描述(已完成。来自 https://github.com/alizhijun 建议)
 4、扩展新增多渠道打包(来自：https://github.com/alizhijun 建议)
 5、扩展新增Apk加固(来自：https://github.com/j-gin 建议)——方案：由于每个公司或者项目组可能用的加固方案不同，故使用配置上传APK路径（加固后的APK路径）形式达到目的。
+```
 
 大概情况是这样，如有不足和错误的地方，欢迎大家讨论指正和提建议！感谢来个star。
