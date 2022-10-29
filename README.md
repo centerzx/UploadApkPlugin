@@ -152,6 +152,36 @@ def readProperties(key) {
 注意：由于这样会导致app的gradle看着很臃肿，因此可以单独新建一个gradle文件进行配置，然后再在app的gradle文件中apply from: "../******.gradle"
 这个新建gradle就行。
 
+
+
+![Task命令生成](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ab3509bdbc7741ac8a2f5ffa6c5a7b75~tplv-k3u1fbpfcp-zoom-1.image)
+
+在执行task命令时，studio的run窗口会展示执行情况，包括蒲公英上传情况、钉钉飞书等消息发送情况，一目了然。
+
+![Task运行结果输出](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6f94c9a663f9488f9979339df27b5377~tplv-k3u1fbpfcp-zoom-1.image)
+
+![钉钉link型消息.png](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/eb0e87a7eec04426a93878855db8cfee~tplv-k3u1fbpfcp-watermark.image?)
+
+**钉钉link类型消息提醒**
+
+![钉钉markdown效果.png](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c7f454edcdd349e781a81fcb7069c4c6~tplv-k3u1fbpfcp-watermark.image?)
+
+**钉钉markdown类型消息提醒**
+
+![钉钉actionCard效果.png](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ee5b1a40ed284780b76a0bbbab0a9594~tplv-k3u1fbpfcp-watermark.image?)
+
+**钉钉actionCard类型消息提醒**
+
+![飞书post效果.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3c30371f773d4c8f881d2fb3f7da6923~tplv-k3u1fbpfcp-watermark.image?)
+**飞书post类型消息提醒**
+
+![飞书interactive效果.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1babdc3f9f9645a386ec226379200132~tplv-k3u1fbpfcp-watermark.image?)
+
+**飞书interactive类型消息提醒**
+
+**（企业微信群消息由于没有测试的群，故没用测试，有使用的朋友可以反馈下，感谢！）**
+
+
 ## 后期展望：
 
 ```
