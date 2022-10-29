@@ -25,6 +25,8 @@ public class UploadPgyParams {
     //(选填)所需更新的指定渠道的下载短链接，只可指定一个渠道，字符串型，如：abcd
     public String buildChannelShortcut;
 
+    public String uploadApkFilePath;
+    
     public UploadPgyParams() {
 
     }

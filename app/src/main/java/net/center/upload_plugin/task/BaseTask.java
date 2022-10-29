@@ -1,25 +1,22 @@
-package net.center.upload_plugin;
+package net.center.upload_plugin.task;
 
 
 import com.android.build.gradle.api.BaseVariant;
-import com.android.build.gradle.api.BaseVariantOutput;
 import com.google.gson.Gson;
 
+import net.center.upload_plugin.PluginConstants;
+import net.center.upload_plugin.PluginUtils;
 import net.center.upload_plugin.helper.CmdHelper;
 import net.center.upload_plugin.helper.HttpHelper;
 import net.center.upload_plugin.helper.SendMsgHelper;
 import net.center.upload_plugin.model.PgyCOSTokenResult;
 import net.center.upload_plugin.model.PgyUploadResult;
-import net.center.upload_plugin.params.UploadPgyParams;
 
 import org.gradle.api.DefaultTask;
-import org.gradle.api.GradleException;
 import org.gradle.api.Project;
-import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.FormBody;
@@ -34,55 +31,16 @@ import okhttp3.Response;
  * Created by Android-ZX
  * 2021/9/3.
  */
-public class UploadTask extends DefaultTask {
+public class BaseTask extends DefaultTask {
 
-    private BaseVariant mVariant;
-    private Project mTargetProject;
-//    private ScheduledExecutorService executorService;
-//    private Timer mTimer;
+    protected BaseVariant mVariant;
+    protected Project mTargetProject;
 
     public void init(BaseVariant variant, Project project) {
         this.mVariant = variant;
         this.mTargetProject = project;
         setDescription(PluginConstants.TASK_DES);
         setGroup(PluginConstants.TASK_GROUP_NAME);
-    }
-
-    @TaskAction
-    public void uploadToPGY() {
-        for (BaseVariantOutput output : mVariant.getOutputs()) {
-            File apkDir = output.getOutputFile();
-            if (apkDir == null || !apkDir.exists()) {
-                throw new GradleException("apkDir OutputFile is not exist!");
-            }
-            System.out.println("apkDir path: " + apkDir.getAbsolutePath());
-            File apk = null;
-            if (apkDir.getName().endsWith(".apk")) {
-                apk = apkDir;
-            } else {
-                if (apkDir.listFiles() != null) {
-                    for (int i = Objects.requireNonNull(apkDir.listFiles()).length - 1; i >= 0; i--) {
-                        File apkFile = Objects.requireNonNull(apkDir.listFiles())[i];
-                        if (apkFile != null && apkFile.exists() && apkFile.getName().endsWith(".apk")) {
-                            apk = apkFile;
-                            break;
-                        }
-                    }
-                }
-            }
-            if (apk == null || !apk.exists()) {
-                throw new GradleException("apk file is not exist!");
-            }
-            System.out.println("final upload apk path: " + apk.getAbsolutePath());
-            UploadPgyParams params = UploadPgyParams.getConfig(mTargetProject);
-//            uploadPgyAndSendMessage(params.apiKey, params.appName, params.buildInstallType
-//                    , params.buildPassword, params.buildUpdateDescription
-//                    , params.buildInstallDate, params.buildChannelShortcut, apk);
-            uploadPgyQuickWay(params.apiKey, params.appName, params.buildInstallType
-                    , params.buildPassword, params.buildUpdateDescription
-                    , params.buildInstallDate, params.buildChannelShortcut, apk);
-//            CmdHelper.getGitLogByTimeAndCount(-1, -1);
-        }
     }
 
     /**
@@ -98,7 +56,7 @@ public class UploadTask extends DefaultTask {
      * @param buildChannelShortcut
      * @param apkFile
      */
-    private void uploadPgyAndSendMessage(String apiKey, String appName, int installType, String buildPassword, String buildUpdateDescription, int buildInstallDate, String buildChannelShortcut, File apkFile) {
+    public void uploadPgyAndSendMessage(String apiKey, String appName, int installType, String buildPassword, String buildUpdateDescription, int buildInstallDate, String buildChannelShortcut, File apkFile) {
         //builder
         MultipartBody.Builder bodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         bodyBuilder.addFormDataPart("_api_key", apiKey);
@@ -166,7 +124,7 @@ public class UploadTask extends DefaultTask {
      * @param buildChannelShortcut
      * @param apkFile
      */
-    private void uploadPgyQuickWay(String apiKey, String appName, int installType, String buildPassword, String buildUpdateDescription, int buildInstallDate, String buildChannelShortcut, File apkFile) {
+    public void uploadPgyQuickWay(String apiKey, String appName, int installType, String buildPassword, String buildUpdateDescription, int buildInstallDate, String buildChannelShortcut, File apkFile) {
         //builder
         MultipartBody.Builder bodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         bodyBuilder.addFormDataPart("_api_key", apiKey);
