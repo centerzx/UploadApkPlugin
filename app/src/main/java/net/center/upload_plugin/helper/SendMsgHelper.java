@@ -1,5 +1,7 @@
 package net.center.upload_plugin.helper;
 
+import com.android.build.gradle.api.BaseVariant;
+
 import net.center.upload_plugin.PluginUtils;
 import net.center.upload_plugin.model.DingDingRequestBean;
 import net.center.upload_plugin.model.PgyUploadResult;
@@ -35,18 +37,19 @@ public class SendMsgHelper {
      * @param project
      * @param dataDTO
      */
-    public static void sendMsgToDingDing(Project project, PgyUploadResult.DataDTO dataDTO, String gitLog) {
+    public static void sendMsgToDingDing(BaseVariant variant, Project project, PgyUploadResult.DataDTO dataDTO, String gitLog) {
         SendDingParams dingParams = SendDingParams.getDingParamsConfig(project);
         if (PluginUtils.isEmpty(dingParams.accessToken)) {
             System.out.println("send to Dingding failure：accessToken is empty");
             return;
         }
+        String flavorStr = getFlavorInfo(variant);
         DingDingRequestBean requestBean = new DingDingRequestBean();
         String title = dingParams.contentTitle;
         if (PluginUtils.isEmpty(title)) {
             title = defaultTitle;
         }
-        StringBuilder titleStr = new StringBuilder(dataDTO.getBuildName()).append("V").append(dataDTO.getBuildVersion()).append(" ").append(title);
+        StringBuilder titleStr = new StringBuilder(dataDTO.getBuildName()).append(" V").append(dataDTO.getBuildVersion()).append(flavorStr).append(" ").append(title);
         String text = dingParams.contentText;
         if (PluginUtils.isEmpty(text)) {
             text = defaultText;
@@ -135,18 +138,19 @@ public class SendMsgHelper {
      * @param project
      * @param dataDTO
      */
-    public static void sendMsgToFeishu(Project project, PgyUploadResult.DataDTO dataDTO, String gitLog) {
+    public static void sendMsgToFeishu(BaseVariant variant, Project project, PgyUploadResult.DataDTO dataDTO, String gitLog) {
         SendFeishuParams feishuParams = SendFeishuParams.getFeishuParamsConfig(project);
         String webHookHostUrl = feishuParams.webHookHostUrl;
         if (PluginUtils.isEmpty(webHookHostUrl)) {
             System.out.println("send to feishu failure：webHookHostUrl is empty");
             return;
         }
+        String flavorStr = getFlavorInfo(variant);
         String title = feishuParams.contentTitle;
         if (PluginUtils.isEmpty(title)) {
             title = defaultTitle;
         }
-        StringBuilder titleStr = new StringBuilder(dataDTO.getBuildName()).append("V").append(dataDTO.getBuildVersion()).append(" ").append(title);
+        StringBuilder titleStr = new StringBuilder(dataDTO.getBuildName()).append(" V").append(dataDTO.getBuildVersion()).append(flavorStr).append(" ").append(title);
         String text = feishuParams.contentText;
         if (PluginUtils.isEmpty(text)) {
             text = defaultText;
@@ -302,13 +306,14 @@ public class SendMsgHelper {
      * @param project
      * @param dataDTO
      */
-    public static void sendMsgToWeiXinGroup(Project project, PgyUploadResult.DataDTO dataDTO, String gitLog) {
+    public static void sendMsgToWeiXinGroup(BaseVariant variant, Project project, PgyUploadResult.DataDTO dataDTO, String gitLog) {
         SendWeixinGroupParams weixinGroupParams = SendWeixinGroupParams.getWeixinGroupConfig(project);
         String webHookUrl = weixinGroupParams.webHookUrl;
         if (PluginUtils.isEmpty(webHookUrl)) {
             System.out.println("send to weixin group failure：webHookUrl is empty");
             return;
         }
+        String flavorStr = getFlavorInfo(variant);
         String contentTitle = weixinGroupParams.contentTitle;
         if (PluginUtils.isEmpty(contentTitle)) {
             contentTitle = defaultTitle;
@@ -318,11 +323,14 @@ public class SendMsgHelper {
             contentText = defaultText;
         }
         WXGroupRequestBean wxGroupRequestBean = new WXGroupRequestBean();
+        StringBuilder markStr = new StringBuilder();
         if ("text".equals(weixinGroupParams.msgtype)) {
             wxGroupRequestBean.setMsgtype("text");
             WXGroupRequestBean.TextDTO textDTO = new WXGroupRequestBean.TextDTO();
-            String contentStr = dataDTO.getBuildName() + contentTitle + "\n" + "下载链接：https://www.pgyer.com/" + dataDTO.getBuildShortcutUrl() + " \n" + contentText;
-            textDTO.setContent(contentStr);
+            markStr.append(dataDTO.getBuildName()).append(" V").append(dataDTO.getBuildVersion());
+            markStr.append(flavorStr).append(contentTitle).append("\n").append("下载链接：https://www.pgyer.com/")
+                    .append(dataDTO.getBuildShortcutUrl()).append("\n").append(contentText);
+            textDTO.setContent(markStr.toString());
             if (weixinGroupParams.isAtAll) {
                 List<String> mentionedList = new ArrayList<>();
                 mentionedList.add("@all");
@@ -334,7 +342,9 @@ public class SendMsgHelper {
             wxGroupRequestBean.setMsgtype("news");
             WXGroupRequestBean.NewsDTO newsDTO = new WXGroupRequestBean.NewsDTO();
             WXGroupRequestBean.NewsDTO.ArticlesDTO articlesDTO = new WXGroupRequestBean.NewsDTO.ArticlesDTO();
-            articlesDTO.setTitle(dataDTO.getBuildName() + " V" + dataDTO.getBuildVersion() + " " + dataDTO.getBuildCreated());
+            markStr.append(dataDTO.getBuildName()).append(" V").append(dataDTO.getBuildVersion());
+            markStr.append(flavorStr).append(" ").append(dataDTO.getBuildCreated());
+            articlesDTO.setTitle(markStr.toString());
             String desStr = "最新开发测试包已上传,请下载测试吧！ ";
             if (!PluginUtils.isEmpty(contentTitle) && !PluginUtils.isEmpty(contentText)) {
                 desStr = contentTitle + " \n" + contentText;
@@ -353,9 +363,8 @@ public class SendMsgHelper {
         } else {
             wxGroupRequestBean.setMsgtype("markdown");
             WXGroupRequestBean.MarkdownDTO markdownDTO = new WXGroupRequestBean.MarkdownDTO();
-            StringBuilder markStr = new StringBuilder();
             markStr.append("**").append(dataDTO.getBuildName()).append("** V").append(dataDTO.getBuildVersion())
-                    .append("  ").append(dataDTO.getBuildCreated()).append(" \n")
+                    .append(flavorStr).append("  ").append(dataDTO.getBuildCreated()).append(" \n")
                     .append(contentTitle).append(" \n").append(contentText).append(" \n")
                     .append("<font color=\"info\">[下载链接，点击下载](https://www.pgyer.com/")
                     .append(dataDTO.getBuildShortcutUrl()).append(")</font>");
@@ -389,4 +398,8 @@ public class SendMsgHelper {
 
     }
 
+    private static String getFlavorInfo(BaseVariant variant) {
+        String flavor = PluginUtils.isEmpty(variant.getName()) ? variant.getFlavorName() : variant.getName();
+        return PluginUtils.isEmpty(flavor) ? "" : "(FlavorName：" + flavor + ")";
+    }
 }

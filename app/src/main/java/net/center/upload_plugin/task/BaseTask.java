@@ -96,9 +96,9 @@ public class BaseTask extends DefaultTask {
                         String url = "https://www.pgyer.com/" + uploadResult.getData().getBuildShortcutUrl();
                         System.out.println("上传成功，应用链接: " + url);
                         String gitLog = CmdHelper.checkGetGitParamsWithLog(mTargetProject);
-                        SendMsgHelper.sendMsgToDingDing(mTargetProject, uploadResult.getData(), gitLog);
-                        SendMsgHelper.sendMsgToFeishu(mTargetProject, uploadResult.getData(), gitLog);
-                        SendMsgHelper.sendMsgToWeiXinGroup(mTargetProject, uploadResult.getData(), gitLog);
+                        SendMsgHelper.sendMsgToDingDing(mVariant, mTargetProject, uploadResult.getData(), gitLog);
+                        SendMsgHelper.sendMsgToFeishu(mVariant, mTargetProject, uploadResult.getData(), gitLog);
+                        SendMsgHelper.sendMsgToWeiXinGroup(mVariant, mTargetProject, uploadResult.getData(), gitLog);
                     } else {
                         System.out.println("upload pgy result error : data is empty");
                     }
@@ -264,9 +264,9 @@ public class BaseTask extends DefaultTask {
                             String apkDownUrl = "https://www.pgyer.com/" + uploadResult.getData().getBuildShortcutUrl();
                             System.out.println("上传成功，应用链接: " + apkDownUrl);
                             String gitLog = CmdHelper.checkGetGitParamsWithLog(mTargetProject);
-                            SendMsgHelper.sendMsgToDingDing(mTargetProject, uploadResult.getData(), gitLog);
-                            SendMsgHelper.sendMsgToFeishu(mTargetProject, uploadResult.getData(), gitLog);
-                            SendMsgHelper.sendMsgToWeiXinGroup(mTargetProject, uploadResult.getData(), gitLog);
+                            SendMsgHelper.sendMsgToDingDing(mVariant, mTargetProject, uploadResult.getData(), gitLog);
+                            SendMsgHelper.sendMsgToFeishu(mVariant, mTargetProject, uploadResult.getData(), gitLog);
+                            SendMsgHelper.sendMsgToWeiXinGroup(mVariant, mTargetProject, uploadResult.getData(), gitLog);
                         } else {
                             System.out.println("upload pgy --- buildInfo: upload pgy result error : data is empty");
                         }

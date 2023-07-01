@@ -22,6 +22,8 @@ Gradle插件，依赖进项目工程，编译APK，使用Task命令一键上传a
 【新增】根据配置（uploadApkFilePath）要上传的APK文件路径，通过Task直接上传Apk。v1.0.7
 这样减少编译流程和支持上传自己加固后的包。
 
+2023-07-01:
+【新增】发送消息内容，title部分新加Flavor信息。
 ## 使用步骤
 
 1、在项目工程跟目录，工程的build.gradle dependencies中添加：
@@ -179,7 +181,9 @@ def readProperties(key) {
 
 **飞书interactive类型消息提醒**
 
-**（企业微信群消息由于没有测试的群，故没用测试，有使用的朋友可以反馈下，感谢！）**
+![企微消息.png](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/78a21577c28641619e083e9368bc02b6~tplv-k3u1fbpfcp-watermark.image?)
+
+**企业微信群消息**
 
 
 ## 后期展望：
